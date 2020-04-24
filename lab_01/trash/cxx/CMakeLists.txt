@@ -11,6 +11,9 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(INC
     inc/Monomial.h
+    inc/Polynomial.h
+
+    inc/PicardMethod.h
 )
 
 set(TSRC
@@ -22,6 +25,8 @@ set(SRC
 
     src/Monomial.cc
     src/Polynomial.cc
+
+    src/PicardMethod.cc
 )
 
 add_executable(mmlab01

@@ -2,18 +2,11 @@
 #include <vector>
 
 #include "Monomial.h"
-#include "Polynomial.h"
+#include "PicardMethod.h"
 
 int main()
 {
-    Polynomial p({ new Monomial(2), new Monomial(2) });
-    Polynomial p1({ new Monomial(2), new Monomial(2) });
-
-
-    std::cout << (std::string)p << '\n';
-    //p *= p;
-    p.power(2);
-    std::cout << (std::string)p << '\n';
+    std::cout << PicardMethod::calc(Monomial(2), 1, 4) << '\n';
 
     return 0;
 }

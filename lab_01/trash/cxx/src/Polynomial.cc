@@ -107,11 +107,19 @@ Polynomial &Polynomial::power(unsigned int power)
     return *this;
 }
 
+Polynomial &Polynomial::integrate()
+{
+    for (Monomial *monomial: monomials)
+        monomial->integrate();
+
+    return *this;
+}
+
 Polynomial::operator std::string() const
 {
     std::string base = "";
 
-    for (size_t idx = 0; idx < monomials.size() - 1; idx++)
+    for (int idx = 0; idx < (int)monomials.size() - 1; idx++)
         base += (std::string)*monomials[idx] + " + ";
 
     if (!monomials.empty())

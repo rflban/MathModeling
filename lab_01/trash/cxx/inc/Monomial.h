@@ -23,6 +23,8 @@ public:
 
     operator std::string() const;
 
+    int getPower() { return power; }
+
 private:
     int power;
     int sign;

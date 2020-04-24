@@ -12,6 +12,30 @@ Monomial::Monomial(int power) :
 {
 }
 
+Monomial::Monomial(const Monomial &other) :
+    power(other.power),
+    sign(other.sign),
+    ratiosAboveOne(nullptr),
+    ratiosBelowOne(nullptr)
+{
+    Node<double> **cursor;
+    Node<double> *current;
+
+    for (cursor = &ratiosAboveOne, current = other.ratiosAboveOne;
+         current != nullptr;
+         cursor = &(*cursor)->next, current = current->next)
+    {
+        *cursor = new Node<double> { nullptr, current->data };
+    }
+
+    for (cursor = &ratiosBelowOne, current = other.ratiosBelowOne;
+         current != nullptr;
+         cursor = &(*cursor)->next, current = current->next)
+    {
+        *cursor = new Node<double> { nullptr, current->data };
+    }
+}
+
 Monomial::~Monomial()
 {
     Node<double> *toDelete;
@@ -73,13 +97,20 @@ Monomial &Monomial::operator*=(double r)
     return *this;
 }
 
-Monomial &Monomial::operator*=(const Monomial &m)
+Monomial &Monomial::operator*=(const Monomial &other)
 {
+    const Monomial *m;
+
+    if (&other == this)
+        m = new Monomial(*this);
+    else
+        m = &other;
+
     Node<double> **t_cursor;
     Node<double> const *m_cursor;
 
     t_cursor = &ratiosAboveOne;
-    m_cursor = m.ratiosAboveOne;
+    m_cursor = m->ratiosAboveOne;
 
     while (m_cursor)
     {
@@ -103,7 +134,7 @@ Monomial &Monomial::operator*=(const Monomial &m)
     }
 
     t_cursor = &ratiosBelowOne;
-    m_cursor = m.ratiosBelowOne;
+    m_cursor = m->ratiosBelowOne;
 
     while (m_cursor)
     {
@@ -126,8 +157,11 @@ Monomial &Monomial::operator*=(const Monomial &m)
         }
     }
 
-    sign *= m.sign;
-    power += m.power;
+    sign *= m->sign;
+    power += m->power;
+
+    if (&other == this)
+        delete m;
 
     return *this;
 }
@@ -243,25 +277,25 @@ double Monomial::operator()(double x)
     return substituted;
 }
 
-Monomial::operator std::string()
+Monomial::operator std::string() const
 {
     std::string ratios = "";
     std::string power = std::to_string(this->power);
 
-    Node<double> *cursor;
+    Node<double> *current;
 
-    cursor = ratiosAboveOne;
-    while (cursor)
+    current = ratiosAboveOne;
+    while (current)
     {
-        ratios += std::to_string(cursor->data) + "*";
-        cursor = cursor->next;
+        ratios += std::to_string(current->data) + "*";
+        current = current->next;
     }
 
-    cursor = ratiosBelowOne;
-    while (cursor)
+    current = ratiosBelowOne;
+    while (current)
     {
-        ratios += std::to_string(cursor->data) + "*";
-        cursor = cursor->next;
+        ratios += std::to_string(current->data) + "*";
+        current = current->next;
     }
 
     if (sign < 0)

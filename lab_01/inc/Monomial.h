@@ -10,7 +10,7 @@ class Monomial
 {
 public:
     Monomial(int power=1);
-    Monomial(const Monomial &) = delete;
+    Monomial(const Monomial &other);
 
     ~Monomial();
 
@@ -21,7 +21,7 @@ public:
 
     Monomial &integrate();
 
-    operator std::string();
+    operator std::string() const;
 
 private:
     int power;

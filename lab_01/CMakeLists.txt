@@ -21,6 +21,7 @@ set(SRC
     src/main.cc
 
     src/Monomial.cc
+    src/Polynomial.cc
 )
 
 add_executable(mmlab01

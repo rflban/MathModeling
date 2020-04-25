@@ -7,13 +7,83 @@ from threading import Thread
 from math import ceil
 
 
-class Monomial:
-    def __init__(self, power=1, ratio=1):
-        self.power = power
-        self.ratio = bf.BigFloat(ratio)
+def gcd(a, b):
+    while (b):
+        a %= b
+        a, b = b, a
+    return a
+
+
+def lcm(a, b):
+    return a // gcd(a, b) * b
+
+
+class Fraction:
+    def __init__(self, numerator=0, denominator=1, isneg=False):
+        self.numerator = numerator
+        self.denominator = denominator
+        self.isneg = isneg
 
     def __str__(self):
-        return '%.5g*x**%d' % (self.ratio, self.power)
+        return '%s%d/%d' % (
+            '-' if self.isneg else '',
+            self.numerator,
+            self.denominator
+        )
+
+    def __float__(self):
+        return (self.numerator / self.denominator) * \
+               (-1.0 if self.isneg else 1.0)
+
+    def __add__(self, other):
+        denominator = lcm(self.denominator, other.denominator)
+
+        ratio1 = denominator // self.denominator
+        if self.isneg:
+            ratio1 *= -1
+
+        ratio2 = denominator // other.denominator
+        if other.isneg:
+            ratio2 *= -1
+
+        numerator = self.numerator * ratio1 + other.numerator * ratio2
+
+        return Fraction(
+            abs(numerator),
+            denominator,
+            numerator < 0
+        )
+
+    def __mul__(self, other):
+        numerator = self.numerator * other.numerator
+        denominator = self.denominator * other.denominator
+
+        cd = gcd(numerator, denominator)
+        numerator //= cd
+        denominator //= cd
+
+        return Fraction(numerator, denominator, self.isneg ^ other.isneg)
+
+    def __truediv__(self, other):
+        return self * \
+               Fraction(other.denominator, other.numerator, other.isneg)
+
+    def __pow__(self, exp):
+        if type(exp) == int:
+            return Fraction(
+                    self.numerator ** exp,
+                    self.denominator ** exp,
+                    self.isneg and (exp & 1 == 1)
+            )
+
+
+class Monomial:
+    def __init__(self, power=1, ratio=Fraction(1, 1)):
+        self.power = power
+        self.ratio = ratio
+
+    def __str__(self):
+        return '%s*x**%d' % (self.ratio, self.power)
 
     def __add__(self, other):
         if type(other) == Monomial:
@@ -37,7 +107,7 @@ class Monomial:
         return Monomial(self.power + power, self.ratio * ratio)
 
     def pow(self, power):
-        return Monomial(self.power * power, bf.pow(self.ratio, power))
+        return Monomial(self.power * power, self.ratio ** power)
 
     def integrate(self):
         return Monomial(self.power + 1, self.ratio / (self.power + 1))
@@ -217,11 +287,12 @@ def picard(f, n):
 
 
 def main():
-    with bf.precision(1000):
-        pol = picard(my_pol, 12)
-        print(pol)
-        print(pol.calc(1))
-    # print(my_pol(Monomial(1, 1), Polynomial()).mintegrate())
+    print(Fraction(7, 6) ** 2)
+
+    # with bf.precision(1000):
+        # pol = picard(my_pol, 12)
+        # print(pol)
+        # print(pol.calc(1))
 
 
 if __name__ == '__main__':

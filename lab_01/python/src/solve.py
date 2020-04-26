@@ -2,13 +2,13 @@
 
 import texttable as tt
 
-from fractions import Fraction
+from decimal import Decimal
 from threading import Thread
 from math import ceil
 
 
 class Monomial:
-    def __init__(self, power=1, ratio=Fraction(1, 1)):
+    def __init__(self, power=1, ratio=Decimal('1.0')):
         self.power = power
         self.ratio = ratio
 
@@ -43,7 +43,7 @@ class Monomial:
         return Monomial(self.power + 1, self.ratio / (self.power + 1))
 
     def calc(self, x):
-        return self.ratio * x ** self.power
+        return Decimal(self.ratio) * Decimal(x) ** self.power
 
 
 class Polynomial:
@@ -166,7 +166,7 @@ class Polynomial:
         return integrated
 
     def calc(self, x):
-        res = 0
+        res = Decimal('0')
 
         for monomial in self.monomials:
             res += monomial.calc(x)
@@ -217,9 +217,13 @@ def picard(f, n):
 
 
 def main():
-    pol = picard(my_pol, 12)
+    # pol = picard(my_pol, 11)
+    # print(pol)
+    # print(pol.calc(2))
+
+    pol = picard(my_pol, 3)
     print(pol)
-    print(pol.calc(1))
+    print(pol.pow(2).integrate())
 
 
 if __name__ == '__main__':

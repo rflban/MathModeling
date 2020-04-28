@@ -1,0 +1,3 @@
+dependndecies:
+    - mpfr
+

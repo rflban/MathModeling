@@ -1,3 +1,1 @@
-dependndecies:
-    - mpfr
-
+dependndecies: pthread, mpfr

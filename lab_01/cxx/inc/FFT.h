@@ -7,12 +7,12 @@ template<typename TComplex>
 class FFT
 {
 public:
-    FFT(int maxVectorSize);
+    FFT(int maxVectorSize=100);
     ~FFT();
 
     void setMaxVectorSize(int sz);
 
-    void operator()(TComplex *vec, int sz, bool invert);
+    void operator()(TComplex *vec, int sz, bool invert=false);
 
 private:
     int m_maxVectorSize;
@@ -20,6 +20,8 @@ private:
 };
 
 }
+
+#include "FFT.hxx"
 
 #endif // MMLAB01_FFT_H_
 

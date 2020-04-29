@@ -7,8 +7,7 @@ set(SRC
 
     src/Picard.cc
     src/MTPicard.cc
-
-    src/FFT.cc
+    src/FFTPicard.cc
 )
 
 add_executable(mmlab01

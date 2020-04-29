@@ -1,3 +1,6 @@
+#ifndef MMLAB01_FFT_HXX_
+#define MMLAB01_FFT_HXX_
+
 #include "FFT.h"
 
 #include <cmath>
@@ -6,7 +9,8 @@
 namespace mmlabs {
 
 template<typename TComplex>
-FFT<TComplex>::FFT(int maxVectorSize)
+FFT<TComplex>::FFT(int maxVectorSize) :
+    wlenPowers(nullptr)
 {
     setMaxVectorSize(maxVectorSize);
 }
@@ -75,4 +79,6 @@ void FFT<TComplex>::operator()(TComplex *vec, int sz, bool invert)
 }
 
 }
+
+#endif // MMLAB01_FFT_HXX_
 

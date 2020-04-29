@@ -62,8 +62,8 @@ int main()
     //mmlabs::APicard *picard = new mmlabs::MTPicard;
     //mmlabs::APicard *picard = new mmlabs::Picard;
 
-    picard->computePol(20);
-    std::cout << (*picard)(1) << '\n';
+    picard->computePol(10);
+    std::cout << (*picard)(2) << '\n';
 
     delete picard;
 

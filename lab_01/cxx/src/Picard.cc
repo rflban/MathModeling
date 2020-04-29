@@ -4,17 +4,16 @@
 
 static inline int pow(int num, unsigned int p)
 {
-    if (p == 0)
-        return 1;
-
     int powered = 1;
 
-    for (int i = p >> 1; i != 0; i--)
-        powered *= num;
-    powered *= powered;
+    while (p)
+    {
+        if (p & 1)
+            powered *= num;
+        num *= num;
 
-    if (p & 1)
-        powered *= num;
+        p >>= 1;
+    }
 
     return powered;
 }
@@ -29,8 +28,7 @@ Picard::Picard() :
 
 Picard::~Picard()
 {
-    if (polynomial)
-        delete[] polynomial;
+    delete[] polynomial;
 }
 
 void Picard::computePol(int approx)
@@ -38,6 +36,8 @@ void Picard::computePol(int approx)
     Real *squared;
     int curLen = 1;
     int sqrLen;
+
+    delete[] polynomial;
 
     polLen = ::pow(2, approx);
     squared = new Real[polLen];

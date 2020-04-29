@@ -15,7 +15,7 @@ public:
     Picard();
     ~Picard();
 
-    virtual void computePol(int approx) override;
+    void computePol(int approx) override;
     double operator()(double x) override;
 
     static const int precision = 200;

@@ -5,13 +5,13 @@
 
 int main()
 {
-    mmlabs::APicard *picard = new mmlabs::MTPicard;
-    //mmlabs::APicard *picard = new mmlabs::Picard;
+    //mmlabs::APicard *picard = new mmlabs::MTPicard;
+    mmlabs::APicard *picard = new mmlabs::Picard;
 
-    picard->computePol(15);
+    picard->computePol(10);
     std::cout << (*picard)(2) << '\n';
 
-	delete picard;
+    delete picard;
 
     return 0;
 }

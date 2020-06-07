@@ -28,52 +28,36 @@ FFTPicard::~FFTPicard()
 
 void FFTPicard::computePol(int approx)
 {
+    int sqrLen = 1;
     Complex *polynomialComplex;
     Complex *integratedComplex;
-    int sqrLen = 1;
 
-    delete[] polynomial;
-
-    polLen = ::pow(2, approx - 1);
-    polynomial = new Real[polLen + 1];
-    polynomialComplex = new Complex[polLen];
-    integratedComplex = new Complex[polLen];
+    allocatePols(approx);
+    polynomialComplex = new Complex[polLens[approx - 1]];
+    integratedComplex = new Complex[polLens[approx - 1]];
     polynomialComplex[0] = 1.0 / 3;
 
-    fft->setMaxVectorSize(polLen);
+    fft->setMaxVectorSize(polLens[approx - 1]);
 
-    while (--approx)
+    for (int idx = 0; idx < approx; ++idx)
     {
+        for (long long i = 0; i < polLens[idx]; ++i)
+            polynomials[idx][i] = polynomialComplex[i].real();
+
         sqrLen <<= 1;
 
         (*fft)(polynomialComplex, sqrLen, false);
-        for (int i = 0; i < sqrLen; ++i)
+        for (long long i = 0; i < sqrLen; ++i)
             polynomialComplex[i] *= polynomialComplex[i];
         (*fft)(polynomialComplex, sqrLen, true);
-        //for (int i = 0; i < sqrLen; ++i)
-            //polynomialComplex[i + 1] = polynomialComplex[i] / Complex((i + 1) * 4 + 3);
-        //polynomialComplex[0] = 1.0 / 3;
-        for (int i = 0; i < sqrLen - 1; ++i)
-            integratedComplex[i + 1] = polynomialComplex[i] / Complex((i + 1) * 4 + 3);
+
+        for (long long i = 0; i < sqrLen - 1; ++i)
+            integratedComplex[i + 1] = polynomialComplex[i] /
+                                       Complex((int)(i + 1) * 4 + 3);
+
         integratedComplex[0] = 1.0 / 3;
         std::swap(integratedComplex, polynomialComplex);
-
-        //if (approx == 8)
-        //{
-            //for (int i = 0; i < sqrLen; ++i)
-                //std::cout << polynomialComplex[i] << ' ';
-            //std::cout << '\n';
-        //}
     }
-
-    for (int i = 0; i < polLen; ++i)
-        polynomial[i] = polynomialComplex[i].real();
-
-    //for (int i = 0; i < polLen; ++i)
-        //std::cout << polynomialComplex[i] << ' ';
-    for (int i = 0; i < polLen; ++i)
-        std::cout << polynomial[i] << ' ';
-    std::cout << '\n';
 
     delete[] polynomialComplex;
     delete[] integratedComplex;

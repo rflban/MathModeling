@@ -10,6 +10,7 @@ public:
 
     virtual void computePol(int approx) = 0;
     virtual double operator()(double x) = 0;
+    virtual double operator()(double x, int approx) = 0;
 };
 
 }

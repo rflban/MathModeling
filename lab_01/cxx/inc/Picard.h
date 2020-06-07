@@ -5,7 +5,6 @@
 
 #define MPFR_REAL_ENABLE_CONV_OPS
 #include "mpfrwrapper/real.hpp"
-#undef MPFR_REAL_ENABLE_CONV_OPS
 
 namespace mmlabs {
 
@@ -17,16 +16,22 @@ public:
 
     void computePol(int approx) override;
     double operator()(double x) override;
+    double operator()(double x, int approx) override;
 
     static const int precision = 200;
 
     using Real = mpfr::real<precision>;
 
 protected:
-    inline Real pow(const Real &r, int p) { return mpfr::pow(r, p); }
+    void allocatePols(int maxApprox);
 
-    int polLen;
-    Real *polynomial;
+    static inline Real pow(const Real &r, int p) { return mpfr::pow(r, p); }
+
+    int approx;
+    long long *polLens;
+    Real **polynomials;
+
+private:
 };
 
 }

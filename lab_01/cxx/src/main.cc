@@ -71,15 +71,30 @@ int main(int argc, char **argv)
     }
     while (fabs(*EX.rbegin() - *IM.rbegin()) < EPS);
 
-    char titleX[256] = "x\0";
-    char titleA1[256] = "1-ое приближение\0";
-    char titleA2[256] = "2-ое приближение\0";
-    char titleA3[256] = "3-ое приближение\0";
-    char titleA4[256] = "4-ое приближение\0";
+    {
+        x = 2;
+
+        X.push_back(x);
+
+        A1.push_back((*picard)(x, 1));
+        A2.push_back((*picard)(x, 2));
+        A3.push_back((*picard)(x, 3));
+        A4.push_back((*picard)(x, 4));
+        AN.push_back((*picard)(x));
+
+        EX.push_back(mmlabs::EulerMethod::explicitMethod(x, h));
+        IM.push_back(mmlabs::EulerMethod::implicitMethod(x, h));
+    }
+
+    char titleX[256] = "x";
+    char titleA1[256] = "1-ое приближение";
+    char titleA2[256] = "2-ое приближение";
+    char titleA3[256] = "3-ое приближение";
+    char titleA4[256] = "4-ое приближение";
     char titleAN[256];
     sprintf(titleAN, "%d-ое приближение", approx);
-    char titleEX[256] = " Явный\0";
-    const char titleIM[] = "Неявный\0";
+    char titleEX[256] = "Явный метод";
+    const char titleIM[] = "Неявный метод";
 
 
     char formatX[265];
@@ -97,8 +112,8 @@ int main(int argc, char **argv)
     int cellLenA3 = maxNumLen(A3, 4, strlen(titleA3)/2, formatA3);
     int cellLenA4 = maxNumLen(A4, 4, strlen(titleA4)/2, formatA4);
     int cellLenAN = maxNumLen(AN, 4, strlen(titleAN)/2, formatAN);
-    int cellLenEX = maxNumLen(EX, 4, strlen(titleEX)/2, formatEX);
-    int cellLenIM = maxNumLen(IM, 4, (int)strlen(titleIM)/2, formatIM);
+    int cellLenEX = maxNumLen(EX, 4, strlen(titleEX)/2+1, formatEX);
+    int cellLenIM = maxNumLen(IM, 4, strlen(titleIM)/2, formatIM);
 
     printf(" %*s ", cellLenX, titleX);
     printf("|");
@@ -116,6 +131,33 @@ int main(int argc, char **argv)
     printf("|");
     printf(" %*s ", cellLenIM, titleIM);
     printf("\n");
+
+    //char strFormat[256];
+
+    //snprintf(strFormat, sizeof(strFormat), " %%%ds ", cellLenX);
+    //printf(strFormat, titleX);
+    //printf("|");
+    //snprintf(strFormat, sizeof(strFormat), " %%%ds ", cellLenA1);
+    //printf(strFormat, titleA1);
+    //printf("|");
+    //snprintf(strFormat, sizeof(strFormat), " %%%ds ", cellLenA2);
+    //printf(strFormat, titleA2);
+    //printf("|");
+    //snprintf(strFormat, sizeof(strFormat), " %%%ds ", cellLenA3);
+    //printf(strFormat, titleA3);
+    //printf("|");
+    //snprintf(strFormat, sizeof(strFormat), " %%%ds ", cellLenA4);
+    //printf(strFormat, titleA4);
+    //printf("|");
+    //snprintf(strFormat, sizeof(strFormat), " %%%ds ", cellLenAN);
+    //printf(strFormat, titleAN);
+    //printf("|");
+    //snprintf(strFormat, sizeof(strFormat), " %%%ds ", cellLenEX);
+    //printf(strFormat, titleEX);
+    //printf("|");
+    //snprintf(strFormat, sizeof(strFormat), " %%%ds ", cellLenIM);
+    //printf(strFormat, titleIM);
+    //printf("\n");
 
     char t_hrule[256];
     int rowLen = 0;

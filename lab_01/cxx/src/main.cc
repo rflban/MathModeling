@@ -207,9 +207,6 @@ int maxNumLen(std::vector<double> nums, int precision,
 
         if (maxLen < (len = strlen(buf)))
             maxLen = len;
-
-        //printf("%s-\n", buf);
-
     }
 
     if (newFormat)

@@ -9,6 +9,8 @@ set(SRC
     src/Picard.cc
     src/MTPicard.cc
     src/FFTPicard.cc
+
+    src/EulerMethod.cc
 )
 
 add_executable(mmlab01

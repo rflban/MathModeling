@@ -1,0 +1,333 @@
+\chapter{Практическая часть}
+
+Для реализации аналитического решения ОДУ методом Пикара в контексте данного задания, необходимо определить представление полинома в программе.
+
+Запишем полином в виде массива, где для $i \in \big\{0\big\} \cup \mathbb{N}$ коэффициент одночлена степени $i$ записывается в $i$-ой позиции этого массива. Такая форма хранения многочлена предоставляет быстрый доступ к составляющим его одночленам по их степени.
+
+Обратим внимание, что в рассматриваемой задаче полином каждого последующего приближения содержит одночлен вида $r\cdot{}x^{p + 4}$, где $r$~--- некоторый коэффициент, $p$~--- максимальная степень среди всех одночленов полинома предыдущего приближения. Кроме того, минимальная степень одночлена в любом возможном для данной задачи полиноме равна 3. Следовательно, можно не хранить в массиве коэффициенты тех одночленов, которые никогда не будут содержаться в многочлене. Тогда для вычисления степени $p$ $i$-того одночлена следует использовать следующую формулу:
+\begin{equation}
+    p = 3 + i \cdot 4
+\end{equation}
+
+Теперь необходимо рассмотреть задачи интегрирования и произведения полиномов.
+
+\section{Интегрирование многочлена}
+Задача интегрирования полинома это задача интегрирования каждого входящего в его состав одночлена. Имеем:
+\begin{equation}
+    \int{r \cdot x^n dx} = r \cdot \int{x^n dx} = r \cdot \frac{x^{n + 1}}{n + 1},\quad{}n \ne -1
+\end{equation}
+
+\section{Произведение многочленов}
+Традиционный алгоритм произведение полиномов имеет $O(n^2)$ асимптотическую трудоёмкость. Скорость такого умножения можно повысить двумя способами:
+\begin{itemize}
+    \item отбросить одночлены с нулевыми коэффициентами;
+    \item производить параллельные вычисления.
+\end{itemize}
+Описание первого улучшения было приведено выше. Для достижения второго необходимо разбить множество одночленов, из которых состоит, например, первый полином, на $m$ непересекающихся подмножеств, где $m$~--- количество потоков.
+
+Пусть каждый $j$-ый поток вычисляет произведение второго полинома на $k$-ый одночлен первого многочлена, где $j = \overline{0,m-1}$, $k = i + z \cdot m$, $z \in \big\{0\big\} \cup \mathbb{N}$.
+
+$\blacksquare$
+
+Для более быстрого вычисления произведения двух многочленов можно применить метод умножения, основанный на дискретном преобразовании Фурье. Данный метод обычно применяется к целым числам, так как имеет высокую погрешность для чисел с плавающей запятой. Чтобы сделать вывод о допустимости применения такого решения поставленной задачи, реализуем его.
+
+Итак, $DFT(\overrightarrow X)$~--- операция, производящая дискретное преобразование Фурье над вектором чисел $\overrightarrow X$. $InverseDFT(\overrightarrow X_{complex})$~--- обратная операция. Так же $A(\overrightarrow X)$, $B(\overrightarrow X)$~--- некоторые полиномы. Тогда:
+\begin{flalign*}
+    &
+    (A \cdot B)(\overrightarrow X) = A(\overrightarrow X) \cdot B(\overrightarrow X)
+  \\&
+  DFT((A \cdot B)(\overrightarrow X)) = DFT(A(\overrightarrow X)) \cdot DFT(B(\overrightarrow X))
+  \\&
+  (A \cdot B)(\overrightarrow X) = InverseDFT(DFT(A(\overrightarrow X)) \cdot DFT(B(\overrightarrow X)))
+    &
+\end{flalign*}
+Важно уточнить, что векторы $A(\overrightarrow X)$, $B(\overrightarrow X)$ нужно дополнить нулями так, чтобы $len((A \cdot B)(\overrightarrow X)) = len(A(\overrightarrow X)) = len(B(\overrightarrow X))$, где $len(\vec v)$~--- операция получения длины некоторого вектора $\vec v$.
+
+\section{Инструменты реализации}
+
+Для реализации рассматриваемой задачи используется язык программирования C++.
+
+В целях проведения параллельных вычислений используется библиотека pthread.
+
+Задача выполнения метода Пикара при высоких приближениях требует тип данных, реализующий числа с плавающей точкой с множественной точностью. Для этого применяется библиотека mpfr.
+
+Для вычисления $DFT$ используется быстрое преобразование Фурье. Данный метод реализован в библиотеке Eigen.
+
+\section{Реализация}
+В листингах~\ref{picard},~\ref{mtpicard},~\ref{fftpicard} приведён текст различных реализаций методов Пикара.
+\begin{lstlisting}[caption={Метод Пикара},label=picard]
+class Picard : public APicard
+{
+public:
+    Picard();
+    ~Picard();
+
+    void computePol(int approx) override;
+    double operator()(double x) override;
+    double operator()(double x, int approx) override;
+
+    static const int precision = 200;
+
+    using Real = mpfr::real<precision>;
+
+protected:
+    void allocatePols(int maxApprox);
+
+    static inline Real pow(const Real &r, int p)
+    { return mpfr::pow(r, p); }
+
+    int approx;
+    long long *polLens;
+    Real **polynomials;
+};
+
+// Вычисление полинома
+void Picard::computePol(int approx)
+{
+    Real *squared;
+    Real *polynomial;
+    long long curLen = 1;
+    long long sqrLen;
+
+    allocatePols(approx);
+
+    squared = new Real[polLens[approx - 1]];
+    polynomial = new Real[polLens[approx - 1]];
+    polynomial[0] = 1.0 / 3;
+
+    for (int idx = 0; idx < approx; ++idx)
+    {
+        for (long long i = 0; i < curLen; ++i)
+            polynomials[idx][i] = polynomial[i];
+
+        sqrLen = curLen << 1;
+        for (long long i = 0; i < sqrLen; i++)
+            squared[i] = 0;
+
+        for (long long i = 0; i < curLen; i++)
+            for (long long j = 0; j < curLen; j++)
+                squared[i + j + 1] += polynomial[i] *
+                                      polynomial[j] /
+                                      ((int)(i + j + 1) * 4 + 3);
+        squared[0] = 1.0 / 3;
+
+        std::swap(polynomial, squared);
+        curLen = sqrLen;
+    }
+
+    delete[] squared;
+    delete[] polynomial;
+}
+
+// Подстановка значения в полином
+double Picard::operator()(double x, int approx)
+{
+    if (!polynomials)
+        return 0;
+    if (approx > this->approx)
+        return 0;
+
+    Real res = 0;
+
+    for (int i = 0; i < polLens[approx - 1]; i++)
+        res += polynomials[approx - 1][i] * pow(Real(x), i * 4 + 3);
+
+    return res;
+}
+\end{lstlisting}
+\begin{lstlisting}[caption={Параллелизированный метод Пикара},label=mtpicard]
+class MTPicard : public Picard
+{
+public:
+    void computePol(int approx) override;
+};
+
+void MTPicard::computePol(int approx)
+{
+    Real *squared;
+    Real *polynomial;
+    long long curLen = 1;
+    long long sqrLen;
+
+    allocatePols(approx);
+    squared = new Real[polLens[approx - 1]];
+    polynomial = new Real[polLens[approx - 1]];
+    polynomial[0] = 1.0 / 3;
+
+    std::vector<std::thread> threads;
+
+    for (int idx = 0; idx < approx; ++idx)
+    {
+        for (long long i = 0; i < curLen; ++i)
+            polynomials[idx][i] = polynomial[i];
+
+        sqrLen = curLen << 1;
+        for (long long i = 0; i < sqrLen; i++)
+            squared[i] = 0;
+
+        for (int i = 1; i <= THREADS_QTY; i++)
+            threads.push_back(std::thread(
+                        &::squarePolPart,
+                        squared, i, sqrLen, THREADS_QTY,
+                        polynomial));
+
+        for (std::thread &thread: threads)
+            thread.join();
+
+        squared[0] = 1.0 / 3;
+
+        std::swap(polynomial, squared);
+        curLen = sqrLen;
+        threads.clear();
+    }
+
+    delete[] squared;
+    delete[] polynomial;
+}
+
+static void squarePolPart(
+        mmlabs::Picard::Real *squared,
+        long long begin, long long end, long long step,
+        mmlabs::Picard::Real *polynomial
+        )
+{
+    for (long long i, idx = begin; idx < end; idx += step)
+    {
+        i = idx - 1;
+
+        do
+            squared[idx] += polynomial[i] *
+                            polynomial[idx - 1 - i] /
+                            ((int)idx * 4 + 3);
+        while (i--);
+    }
+}
+\end{lstlisting}
+\begin{lstlisting}[caption={Метод Пикара, основанный на быстром преобразовании Фурье},label=fftpicard]
+template<typename TComplex>
+class FFT;
+
+class FFTPicard : public Picard
+{
+public:
+    FFTPicard();
+    ~FFTPicard();
+
+    void computePol(int approx) override;
+
+    using Complex = std::complex<Real>;
+
+private:
+    FFT<Complex> *fft;
+};
+
+void FFTPicard::computePol(int approx)
+{
+    int sqrLen = 1;
+    Complex *polynomialComplex;
+    Complex *integratedComplex;
+
+    allocatePols(approx);
+    polynomialComplex = new Complex[polLens[approx - 1]];
+    integratedComplex = new Complex[polLens[approx - 1]];
+    polynomialComplex[0] = 1.0 / 3;
+
+    fft->setMaxVectorSize(polLens[approx - 1]);
+
+    for (int idx = 0; idx < approx; ++idx)
+    {
+        for (long long i = 0; i < polLens[idx]; ++i)
+            polynomials[idx][i] = polynomialComplex[i].real();
+
+        sqrLen <<= 1;
+
+        (*fft)(polynomialComplex, sqrLen, false);
+        for (long long i = 0; i < sqrLen; ++i)
+            polynomialComplex[i] *= polynomialComplex[i];
+        (*fft)(polynomialComplex, sqrLen, true);
+
+        for (long long i = 0; i < sqrLen - 1; ++i)
+            integratedComplex[i + 1] = polynomialComplex[i] /
+                                       Complex((int)(i + 1) * 4 + 3);
+
+        integratedComplex[0] = 1.0 / 3;
+        std::swap(integratedComplex, polynomialComplex);
+    }
+
+    delete[] polynomialComplex;
+    delete[] integratedComplex;
+}
+\end{lstlisting}
+
+В листинге~\ref{exeuler} приведён текст реализации явного метода Эйлера.
+\begin{lstlisting}[caption={Явный метод Эйлера},label=exeuler]
+double explicitMethod(double x, double h)
+{
+    double res = 0;
+    double x0 = h;
+
+    while (x0 < x + h)
+    {
+        res += h * (x0 * x0 + res * res);
+        x0 += h;
+    }
+
+    return res;
+}
+\end{lstlisting}
+
+В листинге~\ref{imeuler} приведён текст реализации неявного метода Эйлера.
+\begin{lstlisting}[caption={Неявный метод Эйлера},label=imeuler]
+double implicitMethod(double x, double h)
+{
+    double D;
+    double res = 0;
+    double x0 = h;
+
+    while (x0 < x + h)
+    {
+        D = 1 - 4 * h * (h * x0 * x0 + res);
+
+        if (D >= 0)
+            res = (1 - ::sqrt(D)) / 2 / h;
+
+        x0 += h;
+    }
+
+    return res;
+}
+\end{lstlisting}
+
+\section{Примеры работы}
+На рисунках~\ref{img:mtpicard},~\ref{img:fftpicard} изображены примеры реализованной программы. В первом случае используется параллеллизированный метод Пикара, во втором~--- метод Пикара, основанный на быстром преобразовании Фурье.
+\begin{figure}[H]
+    \caption{Параллелизированный метод Пикара}\label{img:mtpicard}
+    \includegraphics[scale=0.27]{images/mtpicard.png}
+\end{figure}
+\begin{figure}[H]
+    \caption{Метод Пикара, основанный на быстром преобразовании Фурье}\label{img:fftpicard}
+    \includegraphics[scale=0.27]{images/fftpicard.png}
+\end{figure}
+Как видно, высокая погрешность быстрого преобразования Фурье не позволяет использовать этот метод для реализации метода Пикара.
+
+\section{Ответы на контрольные вопросы}
+
+\subsection{Укажите интервалы значений аргумента, в которых можно считать решением заданного уравнения каждое из первых 4-х  приближений Пикара. Точность результата оценивать до второй цифры после запятой. Объяснить свой ответ.}
+
+Для ответа на данный вопрос, запустим программу с шагом таблицы равным 0.001. Фрагмент таблицы приведён на рисунке~\ref{img:answer1}.
+\begin{figure}[H]
+    \centering
+    \caption{Поиск интервалов}\label{img:answer1}
+    \includegraphics[scale=1.5]{images/answer1.png}
+\end{figure}
+При $x = 0.579$ первые 4 приближения Пикара первый раз не совпадают с точностью до второй цифры после запятой. Это происходит потому, что каждое последующий полином каждого приближения Пикара содержит больше одночленов. Значит, значение каждого последующего приближения больше предыдущего и, чем больше значение подставляемого аргумента, тем больше эта разница. Таким образом, $x \in [0, 0.579)$.
+
+\subsection{Пояснить, каким образом можно доказать правильность полученного результата при фиксированном значении аргумента в численных методах.}
+Численные методы зависят от шага. Чем меньше шаг~--- тем точнее решение. Чтобы доказать правильность полученного результата с точностью до $n$-ой цифры после запятой, нужно уменьшать шаг до тех пор, пока результаты для двух крайних шагов не перестанут отличаться с точностью до $n$-ой цифры после запятой.
+
+\subsection{Из каких соображений выбирался корень уравнения в неявном методе?}
+В неявном методе выбирается минимальный корень для того, чтобы минимизировать накапливаемую ошибку и, тем самым, повысить точность.
+
+\subsection{Каково значение функции при $x=2$, т.е. привести значение $u(2)$.}
+Согласно явному методу Эйлера $u(2) \approx 317$.
+

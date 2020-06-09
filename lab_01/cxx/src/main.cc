@@ -106,7 +106,7 @@ int main(int argc, char **argv)
     char formatEX[265];
     char formatIM[265];
 
-    int cellLenX = maxNumLen(X, 2, strlen(titleX)/2, formatX);
+    int cellLenX = maxNumLen(X, 3, strlen(titleX)/2, formatX);
     int cellLenA1 = maxNumLen(A1, 4, strlen(titleA1)/2, formatA1);
     int cellLenA2 = maxNumLen(A2, 4, strlen(titleA2)/2, formatA2);
     int cellLenA3 = maxNumLen(A3, 4, strlen(titleA3)/2, formatA3);

@@ -1,0 +1,44 @@
+\chapter{Теоретическая часть}
+
+Имеем систему
+\begin{equation}\label{eq:task}
+    \begin{cases}
+        u'(x) = f(x,u) \\
+        u(\xi) = y
+    \end{cases}
+\end{equation}
+ОДУ здесь можно решить \textbf{методом Пикара} (формула \ref{eq:pik}).
+
+\begin{equation}\label{eq:pik}
+    \begin{matrix}
+        y^{(s)}(x) = \eta + \int_0^x f(t, y^{(s-1)}(t)) dt \\
+        \\
+        y^{(0)} = \eta \\
+    \end{matrix}
+\end{equation}
+Для задачи $u'(x) = u^2 + x^2$, $\eta = 0$ получим 4 приближения (формулы \ref{eq:p1}, \ref{eq:p2}, \ref{eq:p3}, \ref{eq:p4}).
+\begin{flalign}
+    &
+    y^{(1)} = \frac{x^3}{3} \label{eq:p1}
+    \\&
+    y^{(2)} = \frac{x^3}{3} + \frac{x^7}{63} \label{eq:p2}
+    \\&
+    y^{(3)}=\frac{x^3}{3}+ \frac{x^7}{63} + \frac{2x^{11}}{2079} + \frac{x^{15}}{59535} \label{eq:p3}
+    \\&
+    y^{(4)} = \frac{x^3}{3}+ \frac{x^7}{63} + \frac{2x^{11}}{2079} + \frac{13x^{15}}{218295} + \label{eq:p4}
+    \\&
+    \frac{82x^{19}}{37328445} + \frac{662x^{23}}{10438212015}+ \nonumber
+    \\&
+    \frac{4x^{27}}{3341878155}+\frac{x^{31}}{109876902975} \label{eq:p4} \nonumber
+\end{flalign}
+
+Также уравнение решается \textbf{численным методом Эйлера}.
+\newline{}Явная схема (формула \ref{eq:ex})
+\begin{equation}\label{eq:ex}
+    y_{n+1} = y_n + h \cdot f(x_n, y_n)
+\end{equation}
+Неявная схема (формула \ref{eq:im})
+\begin{equation}\label{eq:im}
+    y_{n+1} = y_n + h \cdot (f(x_{n+1}, y_{n+1}))
+\end{equation}
+

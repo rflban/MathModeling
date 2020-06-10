@@ -8,6 +8,12 @@
 #include "FFTPicard.h"
 #include "EulerMethod.h"
 
+//#define _TABLE_
+//#define _EULER_
+#define _PICARD_
+
+#ifdef _TABLE_
+
 int maxNumLen(std::vector<double> nums, int precision,
               int first=0, char *newFormat=nullptr);
 
@@ -256,4 +262,105 @@ int maxNumLen(std::vector<double> nums, int precision,
 
     return maxLen;
 }
+
+#endif // _TABLE_
+
+#ifdef _EULER_
+
+int main()
+{
+    const double EPS = 1e-2;
+
+    double y;
+    double y_next;
+
+    double x = 2;
+    double h = 1e-1;
+
+    int h_len = 7;
+    int h_frac_len = 1;
+    int y_len = 8;
+    int y_frac_len = 4;
+
+    char hrule[256] = {};
+    memset(hrule, '-', sizeof(hrule) - 1);
+
+    printf("Явный метод Эйлера, x = %.1lf\n", x);
+
+    printf(" %*s | %*s \n", h_len, "h", y_len, "y");
+    printf("-%.*s-+-%.*s-\n", h_len, hrule, y_len, hrule);
+
+    y_next = mmlabs::EulerMethod::explicitMethod(x, h);
+    printf(" %*.*e | %*.*lf \n",
+           h_len, h_frac_len, h, y_len, y_frac_len, y_next);
+
+    do
+    {
+        y = y_next;
+
+        printf(" %*.*e | %*.*lf \n",
+               h_len, h_frac_len, h, y_len, y_frac_len, y);
+
+        h /= 10;
+        y_next = mmlabs::EulerMethod::explicitMethod(x, h);
+    }
+    while (fabs(y_next - y) >= EPS);
+
+    printf(" %*.*e | %*.*lf \n",
+           h_len, h_frac_len, h, y_len, y_frac_len, y_next);
+
+    return 0;
+}
+
+#endif // _EULER_
+
+#ifdef _PICARD_
+#include <bits/stdc++.h>
+
+double estimateMaxX(mmlabs::MTPicard &picard,
+                    int approx1, int approx2,
+                    double step, double eps);
+
+int main()
+{
+    std::vector<double> v;
+    mmlabs::MTPicard picard;
+
+    int maxApprox = 4;
+
+    int p = 2;
+    int n = 3;
+    double eps = 1 * pow(10.0, -p);
+    double step = 1 * pow(10.0, -n);
+
+    picard.computePol(maxApprox + 1);
+
+    for (int i = 1; i <= maxApprox; ++i)
+    {
+        v.push_back(estimateMaxX(picard, i, i + 1, step, eps));
+        printf("x_%d <= %.*lf\n", i, n, *v.rbegin());
+    }
+    printf("\n");
+
+    printf("x <= %.*lf\n", n, *std::min_element(v.begin(), v.end()));
+
+    //printf("%lf\n", estimateMaxX(picard, 1, 5, step, eps));
+
+    return 0;
+}
+
+double estimateMaxX(mmlabs::MTPicard &picard,
+                    int approx1, int approx2,
+                    double step, double eps)
+{
+    double x = 0;
+    double y1, y2;
+
+    while (fabs((picard(x, approx2)) - (y1 = picard(x, approx1))) < eps)
+        x += step;
+
+    return x - step;
+}
+
+#endif // _PICARD_
 

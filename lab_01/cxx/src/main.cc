@@ -9,8 +9,8 @@
 #include "EulerMethod.h"
 
 //#define _TABLE_
-//#define _EULER_
-#define _PICARD_
+#define _EULER_
+//#define _PICARD_
 
 #ifdef _TABLE_
 
@@ -290,9 +290,7 @@ int main()
     printf(" %*s | %*s \n", h_len, "h", y_len, "y");
     printf("-%.*s-+-%.*s-\n", h_len, hrule, y_len, hrule);
 
-    y_next = mmlabs::EulerMethod::explicitMethod(x, h);
-    printf(" %*.*e | %*.*lf \n",
-           h_len, h_frac_len, h, y_len, y_frac_len, y_next);
+    y_next = mmlabs::EulerMethod::implicitMethod(x, h);
 
     do
     {
@@ -302,7 +300,7 @@ int main()
                h_len, h_frac_len, h, y_len, y_frac_len, y);
 
         h /= 10;
-        y_next = mmlabs::EulerMethod::explicitMethod(x, h);
+        y_next = mmlabs::EulerMethod::implicitMethod(x, h);
     }
     while (fabs(y_next - y) >= EPS);
 

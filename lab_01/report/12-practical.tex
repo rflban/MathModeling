@@ -314,20 +314,138 @@ double implicitMethod(double x, double h)
 
 \subsection{Укажите интервалы значений аргумента, в которых можно считать решением заданного уравнения каждое из первых 4-х  приближений Пикара. Точность результата оценивать до второй цифры после запятой. Объяснить свой ответ.}
 
-Для ответа на данный вопрос, запустим программу с шагом таблицы равным 0.001. Фрагмент таблицы приведён на рисунке~\ref{img:answer1}.
+Чтобы проверить, сходится ли $n$-ое приближение Пикара к точному, нужно вычислить следующее. Если $y_n$ и $y_{n+1}$ равны с точностью до некоторого знака (в данном случае до второго), то $n$-ое приближение можно считать решением заданного уравнения.
+
+Необходимое условие можно задать таким образом:
+\begin{equation*}
+    y_{n + 1}(x) - y_{n}(x) < 0.01
+\end{equation*}
+
+Для первых четырёх приближений имеем:
+
+\begin{equation}\label{eq:picard1}
+    y_2(x) - y_1(x) < 0.01
+\end{equation}
+\begin{equation}\label{eq:picard2}
+    y_3(x) - y_2(x) < 0.01
+\end{equation}
+\begin{equation}\label{eq:picard3}
+    y_4(x) - y_3(x) < 0.01
+\end{equation}
+\begin{equation}\label{eq:picard4}
+    y_5(x) - y_4(x) < 0.01
+\end{equation}
+
+Для решения этих неравенств была реализована программа, текст который представлен в листинге~\ref{lst:picardtest}.
+\begin{lstlisting}[caption={Поиск интервалов},label={lst:picardtest}]
+int main()
+{
+    std::vector<double> v;
+    mmlabs::MTPicard picard;
+
+    int maxApprox = 4;
+
+    int p = 2;
+    int n = 3;
+    double eps = 1 * pow(10.0, -p);
+    double step = 1 * pow(10.0, -n);
+
+    picard.computePol(maxApprox + 1);
+
+    for (int i = 1; i <= maxApprox; ++i)
+    {
+        v.push_back(estimateMaxX(picard, i, i + 1, step, eps));
+        printf("x_%d <= %.*lf\n", i, n, *v.rbegin());
+    }
+    printf("\n");
+
+    printf("x <= %.*lf\n", n, *std::min_element(v.begin(), v.end()));
+
+    return 0;
+}
+
+double estimateMaxX(mmlabs::MTPicard &picard,
+                    int approx1, int approx2,
+                    double step, double eps)
+{
+    double x = 0;
+    double y1, y2;
+
+    while (fabs((picard(x, approx2)) - (y1 = picard(x, approx1))) < eps)
+        x += step;
+
+    return x - step;
+}
+\end{lstlisting}
+
+На рисунке~\ref{img:answer1} приведён результат работы этой программы.
 \begin{figure}[H]
     \centering
-    \caption{Поиск интервалов}\label{img:answer1}
-    \includegraphics[scale=1.5]{images/answer1.png}
+    \caption{Поиск $u(2)$}\label{img:answer1}
+    \includegraphics[scale=0.5]{images/picard_test.png}
 \end{figure}
-При $x = 0.579$ первые 4 приближения Пикара первый раз не совпадают с точностью до второй цифры после запятой. Это происходит потому, что каждое последующий полином каждого приближения Пикара содержит больше одночленов. Значит, значение каждого последующего приближения больше предыдущего и, чем больше значение подставляемого аргумента, тем больше эта разница. Таким образом, $x \in [0, 0.579)$.
 
-\subsection{Пояснить, каким образом можно доказать правильность полученного результата при фиксированном значении аргумента в численных методах.}
+Таким образом, при $\underline{\underline{x \in [0, 0.936]}}$ решением заданного уравнения можно считать каждое из первых 4-х приближений Пикара.
+
+\subsection{Пояснить, каким образом можно доказать правильность полученного результата при фиксированном значении аргумента в численных методах.}\label{ans2}
 Численные методы зависят от шага. Чем меньше шаг~--- тем точнее решение. Чтобы доказать правильность полученного результата с точностью до $n$-ой цифры после запятой, нужно уменьшать шаг до тех пор, пока результаты для двух крайних шагов не перестанут отличаться с точностью до $n$-ой цифры после запятой.
 
 \subsection{Из каких соображений выбирался корень уравнения в неявном методе?}
 В неявном методе выбирается минимальный корень для того, чтобы минимизировать накапливаемую ошибку и, тем самым, повысить точность.
 
 \subsection{Каково значение функции при $x=2$, т.е. привести значение $u(2)$.}
-Согласно явному методу Эйлера $u(2) \approx 317$.
+Для поиска $u(2)$ используем явный метод Эйлера. С учётом ответа на вопрос~\ref{ans2} была реализована программа, текст которой приведён в листинге~\ref{euler_test}.
+\begin{lstlisting}[caption={Поиск $u(2)$}, label={euler_test}]
+int main()
+{
+    const double EPS = 1e-2;
+
+    double y;
+    double y_next;
+
+    double x = 2;
+    double h = 1e-1;
+
+    int h_len = 7;
+    int h_frac_len = 1;
+    int y_len = 8;
+    int y_frac_len = 4;
+
+    char hrule[256] = {};
+    memset(hrule, '-', sizeof(hrule) - 1);
+
+    printf("Явный метод Эйлера, x = %.1lf\n", x);
+
+    printf(" %*s | %*s \n", h_len, "h", y_len, "y");
+    printf("-%.*s-+-%.*s-\n", h_len, hrule, y_len, hrule);
+
+    y_next = mmlabs::EulerMethod::explicitMethod(x, h);
+
+    do
+    {
+        y = y_next;
+
+        printf(" %*.*e | %*.*lf \n",
+               h_len, h_frac_len, h, y_len, y_frac_len, y);
+
+        h /= 10;
+        y_next = mmlabs::EulerMethod::explicitMethod(x, h);
+    }
+    while (fabs(y_next - y) >= EPS);
+
+    printf(" %*.*e | %*.*lf \n",
+           h_len, h_frac_len, h, y_len, y_frac_len, y_next);
+
+    return 0;
+}
+\end{lstlisting}
+
+Результат работы этой программы приведён на рисунке~\ref{img:answer4}.
+\begin{figure}[H]
+    \centering
+    \caption{Поиск интервалов}\label{img:answer4}
+    \includegraphics[scale=0.5]{images/euler_test.png}
+\end{figure}
+
+В полученной таблице последний и предпоследний результаты равны с точностью до второго знака после запятой. Таким образом, $\underline{\underline{u(2) \approx 317.72}}$.
 

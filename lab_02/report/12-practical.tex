@@ -1,0 +1,147 @@
+\chapter{Практическая часть}
+
+\section{Реализация}
+\lstset{language=python}
+\begin{lstlisting}[caption={Методы Рунге-Кутта второго и четвёртого порядков точности},label={lst:rungekutta}]
+def RungeKutta2Order(x0, y0, z0, h):
+    alpha = 0.5
+    nh = h / (2 * alpha)
+
+    k1 = F1(x0, y0, z0)
+    g1 = F2(x0, y0, z0)
+    k2 = F1(x0 + nh, y0 + nh * k1, z0 + nh * g1)
+    g2 = F2(x0 + nh, y0 + nh * k1, z0 + nh * g1)
+
+    y1 = y0 + h * ((1 - alpha) * k1 + alpha * k2)
+    z1 = z0 + h * ((1 - alpha) * g1 + alpha * g2)
+
+    return y1, z1
+
+
+def RungeKutta4Order(xn, yn, zn, hn):
+    k1 = hn * F1(xn, yn, zn)
+    g1 = hn * F2(xn, yn, zn)
+
+    k2 = hn * F1(xn + hn / 2, yn + k1 / 2, zn + g1 / 2)
+    g2 = hn * F2(xn + hn / 2, yn + k1 / 2, zn + g1 / 2)
+
+    k3 = hn * F1(xn + hn / 2, yn + k2 / 2, zn + g2 / 2)
+    g3 = hn * F2(xn + hn / 2, yn + k2 / 2, zn + g2 / 2)
+
+    k4 = hn * F1(xn + hn, yn + k3, zn + g3)
+    g4 = hn * F2(xn + hn, yn + k3, zn + g3)
+
+    yn_1 = yn + (k1 + 2 * k2 + 2 * k3 + k4) / 6
+    zn_1 = zn + (g1 + 2 * g2 + 2 * g3 + g4) / 6
+
+    return yn_1, zn_1
+\end{lstlisting}
+\begin{lstlisting}[caption={Интерполяция},label={lst:interpolation}]
+def interpolate(table, x):
+    x1 = y1 = 0
+    x2 = y2 = 0
+
+    flag = False
+    for i in range(len(table) - 1):
+        if (table[i][0] <= x <= table[i + 1][0]):
+            flag = True
+
+            y1 = table[i][1]
+            y2 = table[i + 1][1]
+            x1 = table[i][0]
+            x2 = table[i + 1][0]
+
+    if (not flag):
+        if (x < table[0][0]):
+            return table[0][1]
+        if (x> table[-1][0]):
+            return table[-1][1]
+
+    return y1 + ((x- x1) / (x2 - x1)) * (y2 - y1)
+\end{lstlisting}
+\begin{lstlisting}[caption={Метод Симпосона},label={lst:simpson}]
+def simpson(I, a=0, b=1, n=50):
+    res = 0
+    h = (b - a) / n
+
+    for i in range(n):
+        x1 = a + h * (i)
+        x2 = a + h * (i + 1)
+
+        res += (x2 - x1) / 6.0 * (Sigma(I, x1) +
+               4.0 * Sigma(I, 0.5 * (x1 + x2)) + Sigma(I, x2))
+
+    return res
+\end{lstlisting}
+\begin{lstlisting}[caption={Вычисление параметров},label={lst:params}]
+def Tz(T0, m, r):
+    return (params['Tw'] - T0) * math.pow(r, m) + T0
+
+
+def Sigma(I, z):
+    T0 = interpolate(IT, I)
+    m  = interpolate(IM, I)
+
+    return z * interpolate(TS, Tz(T0, m, z))
+
+
+def Rp(I):
+    return params['Le'] / (2 * math.pi * params['R']**2 * simpson(I))
+
+
+def F1(t, I, U):
+    return ((U - (params['Rk'] + Rp(I)) * I) / params['Lk'])
+
+
+def F2(t, I, U):
+    return -1 / params['Ck'] * I
+\end{lstlisting}
+
+\section{Примеры работы}
+Графики зависимости от времени импульса
+$I(t)$, $U(t)$, $R_p(t)$, $I(t) \cdot R_p(t)$, $T_0(t)$
+при
+\begin{itemize}
+    \item $R   =$ 0.35 см;
+    \item $L_{\text{э}}  =$ 12 см;
+    \item $L_k  =$ 187 10--6 Гн;
+    \item $C_k  =$ 268 10--6 Ф;
+    \item $R_k  =$ 0.25 Ом;
+    \item $U_0 =$ 1400 В;
+    \item $I_0  =$ 0.3 A;
+    \item $T_w  =$ 2000 K.
+\end{itemize}
+
+\begin{figure}[H]
+    \caption{Метод Рунге-Кутта второго порядка}\label{img:plot01}
+    \input{plots/plot01.tex}
+\end{figure}
+
+\begin{figure}[H]
+    \caption{Метод Рунге-Кутта четвёртого порядка}\label{img:plot02}
+    \input{plots/plot02.tex}
+\end{figure}
+
+\noindent$\blacksquare$
+
+График зависимости $I(t)$ при $R_k + R_p = 0$. Обратить внимание на то, что в этом случае колебания тока будут не затухающими.
+
+Изменим параметры:
+\begin{itemize}
+    \item $L_{\text{э}}  =$ 0 см;
+    \item $R_k  =$ 0 Ом;
+\end{itemize}
+\begin{figure}[H]
+    \caption{Графики при $R_k + R_p = 0$}\label{img:plot03}
+    \input{plots/plot03.tex}
+\end{figure}
+Ввиду отсутствия сопротивления колебания тока стали незатухающими.
+
+\noindent$\blacksquare$
+
+График зависимости $I(t)$ при $R_k = 200$ Ом в интервале значений t 0--20 мкс.
+\begin{figure}[H]
+    \caption{Графики при $R_k = 200$ Ом}\label{img:plot04}
+    \input{plots/plot04.tex}
+\end{figure}
+

@@ -1,0 +1,127 @@
+\chapter{Теоретическая честь}
+
+\section{Исходные данные}
+Задана система электротехнических уравнений, описывающих разрядный контур, включающий постоянное активное сопротивление $R_k$, нелинейное сопротивление $R_p(I)$, зависящее от тока $I$,  индуктивность $L_k$ и емкость $C_k$.
+\begin{equation*}
+\begin{dcases}
+    \frac{dI}{dT} = \frac{U - (R_k + R_p(I))I}{L_k}, \\
+    \frac{dU}{dt} = -\frac{I}{C_k}. \\
+\end{dcases}
+\end{equation*}
+
+Начальные условия $t = 0$, $I = I_0$, $U = U_0$. Здесь $I$, $U$~--- ток и напряжение на конденсаторе.
+
+Сопротивление $R_p(I)$ рассчитать по формуле:
+\begin{equation*}
+    R_p = \frac{I_p}{2 \pi R^2 \bigintssss_{0}^{1} \sigma (T(z)) z dz}
+\end{equation*}
+
+Для функции $T(z)$ применить выражение $T(z) = T_0 + (T_w - T_0)z^m$.
+
+Параметры $T_0$, $m$ находятся интерполяцией из таблицы~\ref{tbl:itm} при известном токе.
+
+Коэффициент электропроводимости $\sigma(T)$ зависит от T и рассчитывается интерполяцией из таблицы~\ref{tbl:ts}.
+
+\begin{table}[H]
+    \centering
+    \caption{значения $I$, $Tc(I)$, $m(I)$}\label{tbl:itm}
+    \begin{tabular}{|l|l|l|}
+        \hline
+        $I$, A & $T_0$, k & $m$ \\
+        \hline
+        0.5  & 6700 &  0.50 \\
+        \hline
+        1    & 6790 &  0.55 \\
+        \hline
+        5    & 7150 &  1.70 \\
+        \hline
+        10   & 7270 &  3.0  \\
+        \hline
+        50   & 8010 &  11.0 \\
+        \hline
+        200  & 9185 &  32.0 \\
+        \hline
+        400  & 1001 &  40.0 \\
+        \hline
+        800  & 1114 &  41.0 \\
+        \hline
+        1200 & 120  &  39.0 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{значения $T(z)$, $\sigma(T)$}\label{tbl:ts}
+    \begin{tabular}{|l|l|}
+        \hline
+        $T$, K & $\sigma$, 1/Ом см \\
+        \hline
+        4000   & 0.031 \\
+        \hline
+        5000   & 0.27  \\
+        \hline
+        6000   & 2.05  \\
+        \hline
+        7000   & 6.06  \\
+        \hline
+        8000   & 12.0  \\
+        \hline
+        9000   & 19.9  \\
+        \hline
+        10000  & 29.6  \\
+        \hline
+        11000  & 41.1  \\
+        \hline
+        12000  & 54.1  \\
+        \hline
+        13000  & 67.7  \\
+        \hline
+        14000  & 81.5  \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\section{Метод Рунге-Кутта второго порядка точности}
+
+Для системы вида
+\begin{equation*}
+\begin{dcases}
+    u'(x) = f(x, u(x)) \\
+    u(x_0) = y_0
+\end{dcases}
+\end{equation*}
+метод Рунге-Кутта второго порядка точности записывается следующим образом:
+\begin{equation*}
+    y_{n + 1} = y_n + h_n \cdot \Big[ (1 - \alpha) \cdot f(x_n, y_n) + \alpha \cdot f\Big( x_n + \frac{h_n}{2\alpha}, y_n + \frac{h_n}{2\alpha} \cdot f(x_n, y_n) \Big) \Big]
+\end{equation*}
+где $\alpha$~--- произвольный параметр, $\alpha \in [0, 1]$.
+
+\section{Метод Рунге-Кутта четвёртого порядка точности}
+
+Для системы вида
+\begin{equation*}
+\begin{dcases}
+    u'(x) = f_1(x, u, v)) \\
+    v'(x) = f_2(x, u, v) \\
+    u(\xi) = \eta_1 \\
+    v(\xi) = \eta_2 \\
+\end{dcases}
+\end{equation*}
+метод Рунге-Кутта четвёртого порядка точности записывается следующим образом:
+\begin{equation*}
+    y_{n+1} = y_n + \frac{k_1 + 2k_2 + 2k_3 + k_4}{6}
+\end{equation*}
+\begin{equation*}
+    z_{n+1} = z_n + \frac{g_1 + 2g_2 + 2g_3 + g_4}{6}
+\end{equation*}
+где
+\begin{equation*}
+\begin{array}{ll}
+    k_1 = h_n \cdot f_1\big( x_n, y_n, z_n \big) & g_1 = h_n \cdot f_2\big( x_n, y_n, z_n \big) \\
+    k_2 = h_n \cdot f_1\big( x_n + \frac{h_n}{2}, y_n + \frac{k_1}{2}, z_n + \frac{g_1}{2} \big) & g_2 = h_n \cdot f_2\big( x_n + \frac{h_n}{2}, y_n + \frac{k_1}{2}, z_n + \frac{g_1}{2} \big) \\
+    k_3 = h_n \cdot f_1\big( x_n + \frac{h_n}{2}, y_n + \frac{k_2}{2}, z_n + \frac{g_2}{2} \big) & g_3 = h_n \cdot f_2\big( x_n + \frac{h_n}{2}, y_n + \frac{k_2}{2}, z_n + \frac{g_2}{2} \big) \\
+    k_4 = h_n \cdot f_1\big( x_n + h_n, y_n + k_3, z_n + g_3 \big) & g_4 = h_n \cdot f_2\big( x_n + h_n, y_n + k_3, z_n + g_3 \big) \\
+\end{array}
+\end{equation*}
+

@@ -1,0 +1,28 @@
+% This file was created by tikzplotlib v0.9.2.
+\begin{tikzpicture}[scale=1.25]
+
+\definecolor{color0}{rgb}{0.12156862745098,0.466666666666667,0.705882352941177}
+
+\begin{axis}[
+    x label style={at={(axis description cs:0.5,-0.05)},anchor=north},
+    y label style={at={(axis description cs:-0.005,.5)},rotate=0,anchor=south},
+tick align=outside,
+tick pos=left,
+title={\(\displaystyle T(x)\)},
+x grid style={white!69.0196078431373!black},
+xlabel={\(\displaystyle x\), см},
+xmin=-0.49995, xmax=10.49895,
+xtick style={color=black},
+y grid style={white!69.0196078431373!black},
+ylabel={\(\displaystyle T\), K},
+ymin=283.5, ymax=316.5,
+ytick style={color=black}
+]
+\addplot [semithick, color0]
+table {%
+0 300
+9.999 300
+};
+\end{axis}
+
+\end{tikzpicture}

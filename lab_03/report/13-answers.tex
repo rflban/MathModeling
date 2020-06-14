@@ -1,0 +1,95 @@
+\chapter{Ответы на контрольные вопросы}
+
+\section{Какие способы тестирования программы можно предложить?}
+Можно ввести тепловой поток $F_0$ меньше нуля, что будет означать движение съёма тепла с левого торца. Тогда температура должна увеличиваться.
+
+Так же тепловой поток $F_0$ можно установить в 0. Тогда съём тепла не будет происходить, и стержень останется при температуре окружающей среды.
+
+Ещё один способ тестирования~--- увеличить коэффициент теплоотдачи. Так как стержень при том же тепловом потоке отдаёт больше тепла, скорость снижения температуры увеличится
+
+\section{Получите простейший разностный аналог нелинейного краевого условия при $x = l$, \[-k(l)\frac{dT}{dx}=\alpha_N(T(l)-T_0)+\varphi(T)\] где $\varphi(T)$~--- заданная функция. Производную аппроксимируйте односторонней разностью}\label{question02}
+Построим разностную схему методом разностной аппроксимации на равномерной сетке с шагом $h$. Разностный аналог:
+\begin{equation*}
+	\frac{dT}{dx} = \frac{T(x + h) - T(x)}{h}
+\end{equation*}
+Тогда при $x = l$:
+\begin{equation*}
+	-k_l \frac{T_l - T_{l - 1}}{h} = \alpha_N (T_l - T_0) + \varphi(T_l)
+\end{equation*}
+где $T_l = T(l)$, $k_l = k(l)$ и т.д. Имеем:
+\begin{equation*}
+    -(k_l + \alpha_N \cdot h) T_{l} + k_l T_{l-1} = \varphi(T_l) \cdot h -\alpha_N T_0 \cdot h
+\end{equation*}
+
+\section{Опишите алгоритм применения метода прогонки, если при $x = 0$ краевое линейное (как в настоящей работе), а при $x = l$, как в~\ref{question02}}
+\begin{equation*}
+ \begin{dcases}
+   x=0,~-k(0)\frac{dT}{dx}=F_0
+   \\
+   x =l,~-k(l)\frac{dT}{dx}=\alpha_N(T(l)-T_0) + \varphi(T)
+ \end{dcases}
+\end{equation*}
+
+Изменим направление прогонки: прогоночные коэффициенты определять справа налево, а функцию~--- слева направо. Такая прогонка называется левой. Основная прогоночная формула записывается:
+\[y_n=\varepsilon_{n-1}y_{n-1}+\eta_{n-1}\]
+Принимая первого порядка точности аппроксимацию краевого условия при $x=0$, имеем его разностный аналог
+\[-k_0\frac{T_1-T_0}{h}=F_0\]
+\[-k_0T_1+k_0T_0=F_0h\]
+\begin{equation*}
+ \begin{dcases}
+   \varepsilon_0=1
+   \\
+   \eta_0=-\frac{F_0h}{k_0}
+ \end{dcases}
+\end{equation*}
+
+Аналогичная разностная аппроксимация правого краевого условия:
+\[-(k_l+\alpha_Nh)T_{l}+k_lT_{l-1}=\varphi(T_l)h-\alpha_NhT_0\]
+\[-(k_l+\alpha_Nh)T_{l}+k_l\frac{T_{l}-\eta_{l-1}}{\varepsilon_{l-1}}=\varphi(T_l)h-\alpha_NhT_0\]
+Откуда получаем уравнение для определения $T_0$. 
+\[\varphi(T_l)h-(k_l+\alpha_Nh-\frac{k_l}{\varepsilon_{l-1}})T_l=\frac{k_l\eta_{l-1}}{\varepsilon_{l-1}}-\alpha_NhT_0\]
+
+\section{Опишите алгоритм определения единственного значения сеточной функции $y_p$ в одной заданной точке $p$. Использовать встречную прогонку, т.е. комбинацию правой и левой прогонок. Краевые условия линейные}
+Комбинируя левую и правую прогонки, получаем метод встречных прогонок.
+
+Пусть $n=p$, где $0<p<N$. Тогда в области $0\le n \le p+1$ прогоночные коэффициенты $\alpha_n, \beta_n$ (правая прогонка):
+\begin{equation*}
+    \varepsilon_{n+1} = \frac{C_n}{B_n-A_n\varepsilon_n}
+\end{equation*}
+\begin{equation*}
+    \eta_{n+1} = \frac{D_n + A_n \eta_n}{B_n - A_n \varepsilon_n}
+\end{equation*}
+\begin{equation*}
+    0 \le n \le p+1
+\end{equation*}
+
+А в области $p\le n \le N$ прогоночные коэффициенты $\varepsilon_n, \eta_n$ (левая прогонка):
+\begin{equation*}
+    \xi_{n-1} = \frac{C_n}{B_n - A_n \xi_n}
+\end{equation*}
+\begin{equation*}
+    \pi_{n-1} = \frac{A_n\pi_n + D_n}{B_n - A_n\xi_n}
+\end{equation*}
+\begin{equation*}
+    p \le n \le N
+\end{equation*}
+
+Тогда
+\begin{equation*}
+    \begin{dcases}
+        y_n = \varepsilon_{n+1}y_{n+1}+\eta_{n+1} \\
+        y_{n+1} = \xi_{n}y_{n} + \pi_{n} \\
+    \end{dcases}
+\end{equation*}
+
+Подставив $p$ вместо $n$, получим
+\begin{equation*}
+    \begin{dcases}
+        y_p = \varepsilon_{p+1}y_{p+1}+\eta_{p+1} \\
+        y_{p+1} = \xi_{p}y_{p} + \pi_{p} \\
+    \end{dcases}
+\end{equation*}
+\begin{equation*}
+    y_p = \frac{\varepsilon_{p+1}\pi_p + \eta_{p+1}}{1 - \varepsilon_{p+1}\xi_{p}}
+\end{equation*}
+

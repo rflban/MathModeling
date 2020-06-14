@@ -1,0 +1,100 @@
+\chapter{Теоретическая часть}
+
+\section{Исходные данные}
+Уравнение функции $T(x)$:
+\begin{equation}\label{eq:T}
+    \frac{d}{dx}\bigg(K(x)\frac{dT}{dx}\bigg)-\frac{2}{R}\alpha(x)T+\frac{2T_0}{R}\alpha(x)=0
+\end{equation}
+
+Краевые условия:
+\begin{equation*}
+ \begin{dcases}
+   x=0,~-k(0)\frac{dT}{dx}=F_0
+   \\
+   x =l,~-k(l)\frac{dT}{dx}=\alpha_N(T(l)-T_0)
+\end{dcases}
+\end{equation*}
+
+Функции $k(x)$ и $\alpha(x)$ заданы своими константами:
+$$
+k(x)=\frac{a}{x-b}
+$$
+\begin{equation*}
+    \alpha(x) = \frac{c}{x - d}
+\end{equation*}
+где константы $a$, $b$ следует найти из условий $k(0) = k_0$, $k(l) = k_N$, а константы $c$, $d$ из условий $\alpha(0) = \alpha_0$, $\alpha(l) = \alpha_N$. Величины $k_0$, $k_N$, $\alpha_0$, $\alpha_N$ задает пользователь. Тогда
+\begin{flalign*}
+    &
+    b = \frac{k_N l}{k_N - k_0}
+    \\&
+    a =  -b k_0
+    \\&
+    c =  -d \alpha_0
+    \\&
+    d = \frac{\alpha_N l}{\alpha_N - \alpha_0}
+\end{flalign*}
+
+Разностная схема с разностными краевыми условиями при $x = 0$.
+\begin{flalign}
+    & \label{eq:subsheme}
+    A_n y_{n-1}-B_n y_n+C_n y_{n+1}=-D_n,\quad 1\le n\le N-1
+  \\& \nonumber
+  A_n = \frac{\chi_{n+1/2}}{h}
+  \\& \nonumber
+  C_n = \frac{\chi_{n+1/2}}{h}
+  \\& \nonumber
+  B_n = A_n + C_n + p_n h
+  \\& \nonumber
+  D_n = f_n h
+  \\& \nonumber
+\end{flalign}
+
+Система~\ref{eq:subsheme} совместно с краевыми условиями решается методом прогонки. Для величин $\chi_{n+1/2}$ можно получить различные приближенные выражения интеграл методом трапеций или методом средних:
+\begin{equation*}
+    \chi_{n \pm 1/2} = \frac{k_n + k_{n \pm 1}}{2}
+\end{equation*}
+
+Разностный аналог краевого условия при $x = 0$:
+\begin{equation*}
+    y_0\cdot\bigg(x_{\frac{1}{2}} + \frac{h^2}{8}p_{\frac{1}{2}}+\frac{h^2}{4}p_0\bigg)-y_1\cdot\bigg(x_{\frac{1}{2}}-\frac{h^2}{8}p_{\frac{1}{2}}\bigg)=\bigg(hF_0+\frac{h^2}{4}(f_{\frac{1}{2}}+f_0)\bigg)
+\end{equation*}
+где
+\begin{flalign*}
+    & F=-k(x)\frac{dT}{dx}\\
+    & p(x)=\frac{2}{R}\alpha(x)\\
+    & f(x)=\frac{2T_0}{R}\alpha(x)\\
+    & p_n=p(x_n),~f_n=f(x_n)
+\end{flalign*}
+
+Простая аппроксимация:
+\begin{equation*}
+    p_{\frac{1}{2}}=\frac{p_0+p_1}{2}
+\end{equation*}
+\begin{equation*}
+    f_{\frac{1}{2}}=\frac{f_0+f_1}{2}
+\end{equation*}
+
+Так же необходимо учесть, что
+\begin{equation*}
+    F_N = \alpha_N(y_N - T_0)
+\end{equation*}
+\begin{equation}\label{eq:FNSubHalf}
+    F_{N - \frac{1}{2}} = \chi_{N - \frac{1}{2}} \frac{y_{N - 1} - y_N}{h}
+\end{equation}
+
+Значения параметров для отладки:
+\begin{flalign*}
+& K_0=0.4 \text{~Вт/см К} \\
+& K_N=0.1 \text{~Вт/см К} \\
+& \alpha_0=0.05 \text{~Вт/см}^2\text{~К} \\
+& \alpha_N=0.01 \text{~Вт/см}^2\text{~К} \\
+& l=10 \text{~см} \\
+& T_0=300 \text{~К} \\
+& R=0.5 \text{~см} \\
+& F_0=50 \text{~Вт/см}^2
+&
+\end{flalign*}
+
+\section{Физическое содержание задачи}
+Сформулированная математическая модель описывает температурное поле $T(x)$ вдоль цилиндрического стержня радиуса $R$ и длиной $l$, причем $R \ll l$ и температуру можно принять постоянной по радиусу цилиндра. Ось $x$ направлена вдоль оси цилиндра и начало координат совпадает с левым торцем стержня. Слева при $x = 0$ цилиндр нагружается тепловым потоком $F_0$. Стержень обдувается воздухом, температура которого равна $T_0$. В результате происходит съем тепла с цилиндрической поверхности и поверхности правого торца при $x = l$. Функции $k(x)$,$\alpha(x)$ являются, соответственно, коэффициентами теплопроводности материала стержня и теплоотдачи при обдуве.
+

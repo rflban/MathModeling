@@ -1,0 +1,200 @@
+\chapter{Практическая часть}
+
+\section{Реализация}
+\lstset{language=python}
+
+\begin{lstlisting}[caption={Параметры коэффициентов теплопроводности материала стержня и теплоотдачи при обдуве},label={lst:1}]
+b = params['kN'] * params['l'] / (params['kN'] - params['k0'])
+a = params['k0'] * (-b)
+d = params['AlphaN'] * params['l'] / (params['AlphaN'] - params['Alpha0'])
+c = params['Alpha0'] * (-b)
+\end{lstlisting}
+\begin{lstlisting}[caption={Коэффициенты теплопроводности материала стержня и теплоотдачи при обдуве},label={lst:2}]
+def k(x):
+    return a / (x - b)
+
+
+def Alpha(x):
+    return c / (x - d)
+\end{lstlisting}
+\begin{lstlisting}[caption={$p(x)$ и $f(x)$},label={lst:}]
+def P(x):
+    return 2 / params['R'] * Alpha(x)
+
+
+def f(x):
+    return 2 * params['t0'] / params['R'] * Alpha(x)
+\end{lstlisting}
+\begin{lstlisting}[caption={Метод средних для $\chi$},label={lst:}]
+def ChiLo(x):
+    return 2 * k(x) * k(x - h) / (k(x) + k(x - h))
+
+
+def ChiHi(x):
+    return 2 * k(x) * k(x + h) / (k(x) + k(x + h))
+\end{lstlisting}
+\begin{lstlisting}[caption={Параметры разностной схемы},label={lst:}]
+def A(n):
+    return ChiHi(n) / h
+
+
+def C(n):
+    return ChiLo(n) / h
+
+
+def B(n):
+    return A(n) + C(n) + P(n) * h
+
+
+def D(n):
+    return f(n) * h
+\end{lstlisting}
+\begin{lstlisting}[caption={Краевые условия},label={lst:}]
+def bounds_left():
+    x0 = 0
+
+    p0 = P(x0)
+    p1 = P(x0 + h)
+    p12 = (p0+p1)/2
+
+    f0 = f(x0)
+    f1 = f(x0+h)
+    f12 = (f0+f1)/2
+
+    M0 = -ChiHi(x0) + h * h / 8 * p12
+    K0 = ChiHi(x0) + h * h / 8 * p12 + h * h / 4 * p0
+    P0 = h * params['F0'] + h * h / 4 * (f12 + f0)
+
+    return M0, K0, P0
+
+
+def bounds_right():
+    xn = params['l']
+
+    pn = P(xn)
+    pn1 = P(xn - h)
+    pn12 = (pn+pn1)/2
+
+    fn = f(xn)
+    fn1 = f(xn-h)
+    fn12 = (fn+fn1)/2
+
+    Mn = (-ChiLo(xn) + h * h * pn12 / 8)
+    Kn = (ChiLo(xn) + params['AlphaN'] *
+          h + h * h * pn12 / 8 + h * h * pn / 4);
+    Pn = (params['AlphaN'] * params['t0'] *
+          h + h * h * (fn12 + fn) / 4);
+
+    return Mn, Kn, Pn
+\end{lstlisting}
+\begin{lstlisting}[caption={Метод прогонки},label={lst:}]
+def thomas():
+    M0, K0, P0 = bounds_left()
+    Mn, Kn, Pn = bounds_right()
+
+    # прямой ход
+    eps = [0, -M0/K0 ]
+    eta = [0, P0/K0]
+
+    x = h
+    n = 1
+    while x + h < N:
+        eps.append(C(x) / (B(x) - A(x) * eps[n]))
+        eta.append((A(x) * eta[n] + D(x)) / (B(x) - A(x) * eps[n]))
+        n += 1
+        x += h
+
+    # обратный ход
+    t = [0] * (n + 1)
+    t[n] = (Pn - Mn * eta[n]) / (Kn + Mn * eps[n])
+
+    for i in range(n - 1, -1, -1):
+        t[i] = eps[i + 1] * t[i + 1] + eta[i + 1]
+
+    return t
+\end{lstlisting}
+
+\section{Результаты работы}
+\subsection{Представить разностный аналог краевого условия при $x = l$ и его краткий вывод интегро-интерполяционным методом}
+Пусть
+\begin{equation*}
+    F = -k(x) \frac{dT}{dx}
+\end{equation*}
+\begin{equation*}
+    p(x) = \alpha(x) \frac{2}{R}
+\end{equation*}
+\begin{equation*}
+    f(x) = \alpha(x) \frac{2 T_0}{R}
+\end{equation*}
+Учитывая~\ref{eq:T}, получим:
+\begin{equation*}
+    -\frac{d}{dx} (F) - p(x) + f(x) = 0
+\end{equation*}
+Проинтегрируем на отрезке $[\chi_{N-\frac{1}{2}},\chi_N]$:
+\[-\int^{\chi_N}_{\chi_{N-{\frac{1}{2}}}}\frac{dF}{dx}dx-\int^{\chi_N}_{\chi_{N-{\frac{1}{2}}}}p(x)Tdx+\int^{\chi_N}_{\chi_{N-{\frac{1}{2}}}}f(x)dx=0\]
+Второй и третий интегралы вычислим методом трапеций
+\[F_{N-\frac{1}{2}}-F_N-\frac{p_{N-\frac{1}{2}}y_{N-\frac{1}{2}}+p_N y_N}{4}h+\frac{f_{N-\frac{1}{2}}+f_N}{4}h=0\]
+Зная
+\[F_{N-\frac{1}{2}}=\chi_{N-\frac{1}{2}}\frac{y_{N-1}-y_N}{h}\]
+\[F_N=\alpha_N(y_N-T_0)\]
+\[y_{N-\frac{1}{2}}=\frac{y_N+y_{N-1}}{2}\]
+Получим:
+\begin{flalign*}
+&
+\frac{\chi_{N-\frac{1}{2}}y_{N-1}}{h}-\frac{\chi_{N-\frac{1}{2}}y_N}{h}-\alpha_Ny_N+\alpha_NT_0-\frac{p_{N-\frac{1}{2}}y_{N-1}}{8}h-\frac{p_{N-\frac{1}{2}}y_N}{8}h-
+\\&
+-\frac{p_Ny_N}{4}h+\frac{f_{N-\frac{1}{2}}+f_N}{4}h=0
+\\&
+\\&
+y_{N-1}\cdot\bigg (\frac{\chi_{N-\frac{1}{2}}}{h}-\frac{p_{N-\frac{1}{2}}}{8}h\bigg) + y_N\cdot\bigg(-\frac{\chi_{N-\frac{1}{2}}}{h}-\alpha_N-\frac{p_N}{4}h-\frac{p_{N-\frac{1}{2}}}{8}h\bigg) =
+\\&
+=-\bigg(\alpha_NT_0+\frac{f_{N-\frac{1}{2}}+f_N}{4}h\bigg)
+&
+\end{flalign*}
+\begin{flushleft}
+    \hrule width 0.95\textwidth
+    \vspace{0.05cm}
+    \hrule width 0.95\textwidth
+\end{flushleft}
+
+\subsection{График зависимости температуры $T(x)$ от координаты $x$ при заданных выше параметрах}
+\label{task02}
+\begin{figure}[H]
+    \centering
+    \caption{График $T(x)$}\label{img:plot01}
+    \input{plots/plot01.tex}
+\end{figure}
+
+\subsection{График зависимости $T(x)$ при $F_0 = -10\ \text{Вт/см}^2$}
+\begin{figure}[H]
+    \centering
+    \caption{$T(x)$ при $F_0 = -10$}\label{img:plot02}
+    \input{plots/plot02.tex}
+\end{figure}
+
+\subsection{График зависимости $T(x)$ при увеличенных значениях $\alpha(x)$ (в 3 раза)}
+\begin{figure}[H]
+    \centering
+    \caption{$T(x)$ при $3 \cdot \alpha(x)$}\label{img:plot03}
+    \input{plots/plot03.tex}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \caption{График из~\ref{task02}}\label{img:plot01_}
+    \input{plots/plot01.tex}
+\end{figure}
+При увеличении теплосъема и неизменном потоке $F0$ уровень температур $T(x)$ должен снижаться, а градиент увеличиваться.
+
+\subsection{График зависимости $T(x)$ при $F_0 = 0$}
+\begin{figure}[H]
+    \centering
+    \caption{$T(x)$ при $F_0 = 0$}\label{img:plot04}
+    \input{plots/plot04.tex}
+\end{figure}
+
+%\begin{figure}[H]
+    %\centering
+    %\caption{Погрешность}\label{img:plot04_1}
+    %\input{plots/plot04_1.tex}
+%\end{figure}
+

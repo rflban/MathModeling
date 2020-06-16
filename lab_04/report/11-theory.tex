@@ -1,0 +1,131 @@
+\chapter{Теоретическая часть}\label{theory}
+
+\section{Исходные данные}
+
+Задана математическая модель. Уравнение для функции $T(x, t)$:
+\begin{equation}\label{eq:main_t}
+    c(T) \frac{\partial T}{\partial t} = \frac{\partial}{\partial x}\Big( k(T) \frac{\partial T}{\partial x} \Big) - \frac{2}{R} \alpha(x) T + \frac{2 T_0}{R} \alpha(x)
+\end{equation}
+
+Краевые условия
+\begin{equation*}
+    \begin{dcases}
+        t = 0, & T(x, 0) = T_0, \\
+        x = 0, & -k(T(0)) \frac{\partial T}{\partial x} = F_0, \\
+        x = l, & -k(T(l)) \frac{\partial T}{\partial x} = \alpha_N(T(l) - T_0)
+    \end{dcases}
+\end{equation*}
+
+Функция $\alpha (x)$
+\begin{equation*}
+    \alpha(x) = \frac{c}{x-d}
+\end{equation*}
+где
+\begin{equation*}
+    c = -\alpha_0 d = \frac{\alpha_0 \alpha_N l}{\alpha_0 - \alpha_N}
+\end{equation*}
+\begin{equation*}
+    d = \frac{\alpha_N l}{\alpha_N - \alpha_0}
+\end{equation*}
+
+Разностная схема
+\begin{equation}\label{eq:system_diff}
+    \begin{dcases}
+        \LittleCap{K}_0 \LittleCap{y}_0 + \LittleCap{M}_0 \LittleCap{y}_1 = \LittleCap{P}_0 \\
+        \LittleCap{A}_n \LittleCap{y}_{n-1} - \LittleCap{B}_n \LittleCap{y}_n + \LittleCap{D}_n \LittleCap{y}_{n+1} = - \LittleCap{F}_n,\ \ 1 \le n \le N - 1 \\
+        \LittleCap{K}_N \LittleCap{y}_N + \LittleCap{M}_{N-1} \LittleCap{y}_{N-1} = \LittleCap{P}_N \\
+    \end{dcases}
+\end{equation}
+\begin{equation*}
+    \begin{matrix*}[l]
+        \LittleCap{A}_n = \LittleCap{\chi}_{n-\frac{1}{2}} \frac{\tau}{h} \\
+        \LittleCap{B}_n = \LittleCap{A}_n + \LittleCap{D}_n + \LittleCap{c}_n h + p_n h \tau \\
+        \LittleCap{D}_n = \LittleCap{\chi}_{n + \frac{1}{2}} \frac{\tau}{h} \\
+        \LittleCap{F}_n = f_n h \tau + \LittleCap{c}_n y_n h \\
+    \end{matrix*}
+\end{equation*}
+
+Обозначим
+\begin{equation*}
+    \begin{matrix*}[l]
+        F = - k(T) \frac{\partial T}{\partial x} \\
+        p(x) = \frac{2}{R} \alpha(x) \\
+        f(x) = \frac{2T_0}{R} \alpha(x) \\
+    \end{matrix*}
+\end{equation*}
+
+Разностная схема с краевым условием $x = 0$
+\begin{flalign}
+    & \nonumber \bigg( \frac{h}{8} \LittleCap{c}_\frac{1}{2} +\ \frac{h}{4} \LittleCap{c}_0 + \LittleCap{\chi}_\frac{1}{2} \frac{\tau}{h} + \frac{\tau h}{8} p_\frac{1}{2} + \frac{\tau h}{4} p_0 \bigg) \LittleCap{y}_0 + \\
+    & + \bigg( \frac{h}{8} \LittleCap{c}_\frac{1}{2} - \LittleCap{\chi}_\frac{1}{2} \frac{\tau}{h} + \frac{\tau h}{8} p_\frac{1}{2} \bigg) \LittleCap{y}_1 = \label{eq:diff_x0} \\
+    & \nonumber = \frac{h}{8} \LittleCap{c}_\frac{1}{2} \big( y_0 + y_1 \big) + \frac{h}{4} \LittleCap{c}_0 y_0 + \LittleCap{F}\tau + \frac{\tau h}{4} \big(\LittleCap{f}_\frac{1}{2} + \LittleCap{f}_0 \big)
+\end{flalign}
+
+Получим разностный аналог краевого условия $x=l$. Проинтегрируем уравнение~\ref{eq:main_t} на отрезке $[x_{N-\frac{1}{2}}, x_N]$ и на временном интервале $[t_m, t_{m+1}]$.
+\begin{flalign*}
+    &\int_{x_{N-\frac{1}{2}}}^{x_N} dx \int_{t_m}^{t_{m+1}} c(T) \frac{\partial T}{\partial t} dt = - \int_{t_m}^{t_{m+1}} dt \int_{x_{N-\frac{1}{2}}}^{x_N} \frac{\partial F}{\partial x} dx - \\
+    &- \int_{x_{N-\frac{1}{2}}}^{x_N} dx \int_{t_m}^{t_{m+1}} p(x) T dt + \int_{x_{N-\frac{1}{2}}}^{x_N} dx \int_{t_m}^{t_{m+1}} f(T) dt
+    &
+\end{flalign*}
+\begin{flalign*}
+    &\int_{x_{N-\frac{1}{2}}}^{x_N} \LittleCap{c} (\LittleCap{T} -\ T) dx = - \int_{t_m}^{t_{m+1}} \big( F_N - F_{N - \frac{1}{2}} \big) dt - \\
+    &- \int_{x_{N-\frac{1}{2}}}^{x_N} p \LittleCap{T} \tau dx + \int_{x_{N - \frac{1}{2}}}^{x_N} \LittleCap{f} \tau dx
+    &
+\end{flalign*}
+\begin{flalign*}
+    &\frac{h}{4} \big[ \LittleCap{c}_N \big( \LittleCap{y}_N -\ y_N \big) + \LittleCap{c}_{N-\frac{1}{2}} \big( \LittleCap{y}_{N-\frac{1}{2}} -\ y_{N-\frac{1}{2}} \big) \big] = - \big( \LittleCap{F}_N - \LittleCap{F}_{N-\frac{1}{2}} \big) \tau - \\
+    &- \big( p_N \LittleCap{y}_N +\ p_{N-\frac{1}{2}} \LittleCap{y}_{N-\frac{1}{2}} \big) \tau \frac{h}{4} + \big( \LittleCap{f}_N + \LittleCap{f}_{N-\frac{1}{2}} \big) \tau \frac{h}{4}
+    &
+\end{flalign*}
+Учитывая
+\begin{equation*}
+    \LittleCap{y}_{N-\frac{1}{2}} = \frac{\LittleCap{y}_{N-1} + \LittleCap{y}_N}{2}
+\end{equation*}
+\begin{equation*}
+    y_{N-\frac{1}{2}} = \frac{y_{N-1} + y_N}{2}
+\end{equation*}
+\begin{equation*}
+    \LittleCap{F}_N = \alpha_N \big( \LittleCap{y}_N - T_0 \big)
+\end{equation*}
+\begin{equation*}
+    \LittleCap{F}_{N-\frac{1}{2}} = \LittleCap{\chi}_{N-\frac{1}{2}} \frac{\LittleCap{y}_{N-1} - \LittleCap{y}_N}{h}
+\end{equation*}
+Получим
+\begin{flalign}
+    & \nonumber \LittleCap{y}_N \bigg( \frac{h}{4} \LittleCap{c}_N +\ \frac{h}{8} \LittleCap{c}_{N-\frac{1}{2}} + \alpha_N \tau + \LittleCap{\chi}_{N-\frac{1}{2}} \frac{\tau}{h} + p_N \frac{\tau h}{4} + p_{N-\frac{1}{2}} \frac{\tau h}{8} \bigg) + \\
+    & \label{eq:diff_xl} + \LittleCap{y}_{N-1} \bigg( \frac{h}{8} \LittleCap{c}_{N-\frac{1}{2}} - \LittleCap{\chi}_{N-\frac{1}{2}} \frac{\tau}{h} + p_{N-\frac{1}{2}} \frac{\tau h}{8} \bigg) = \\
+    & \nonumber = \frac{h}{4} \LittleCap{c}_N y_N + \frac{h}{8} \LittleCap{c}_{N-\frac{1}{2}} y_{N-1} + \frac{h}{8} \LittleCap{c}_{N-\frac{1}{2}} y_N + T_0 \alpha_N \tau + \big( \LittleCap{f}_N + \LittleCap{f}_{N-\frac{1}{2}} \big) \frac{\tau h}{4}
+    &
+\end{flalign}
+
+С помощью формул~\ref{eq:system_diff} и~\ref{eq:diff_x0} получим коэффициенты $\LittleCap{K}_0, \LittleCap{M}_0, \LittleCap{P}_0$, а с помощью~\ref{eq:system_diff} и~\ref{eq:diff_xl}~--- $\LittleCap{K}_N, \LittleCap{M}_{N-1}, \LittleCap{P}_N$.
+
+Для решения системы~\ref{eq:system_diff} используется метод простых итераций. Обозначим текущую итерацию за $s$, тогда предыдущая~--- $s - 1$. С данными обозначениями итерационный процесс организуется следующим образом
+\begin{equation*}
+    A_n^{s-1} y_{n+1}^s - B_{n}^{s-1} y_n^s + D_n^{s-1} y_{n-1}^s = -F_n^{s-1}
+\end{equation*}
+
+Решение данной схемы осуществляется методом прогонки. Итерации прекращаются при условии
+\begin{equation*}
+    \max \bigg| \frac{y_n^s - y_n^{s-1}}{y_n^s} \bigg| \le \varepsilon, n = \overline{0,N}
+\end{equation*}
+
+Значения параметров для отладки
+\begin{flalign*}
+    &
+    \begin{matrix*}[l]
+        k(T) = a_1(b_1 + c_1 T^{m_1}), \frac{\text{Вт}}{\text{см К}}, \\
+        c(T) = a_2 + b_2 T^{m_2} - \frac{c_2}{T^2}, \frac{\text{Дж}}{\text{см}^3 \text{К}}, \\
+        a_1 = 0.0134,\ b_1 = 1,\ c_1 = 4.35 \cdot 10^{-4},\ m_1=1, \\
+        a_2 = 2.049,\ b_2 = 0.563 \cdot 10^{-3},\ c_2 = 0.528 \cdot 10^5,\ m_2 = 1 \\
+        \alpha(x) = \frac{c}{x-d}, \\
+        \alpha_0 = 0.05\ \frac{\text{Вт}}{\text{см}^2 \text{К}}, \\
+        \alpha_N = 0.01\ \frac{\text{Вт}}{\text{см}^2 \text{К}}, \\
+        l = 10\ \text{см}, \\
+        T_0 = 300\ \text{К}, \\
+        R = 0.5\ \text{см} \\
+        F(t) = 50 \frac{\text{Вт}}{\text{см}^2}.
+    \end{matrix*}
+    &
+\end{flalign*}
+

@@ -1,0 +1,191 @@
+\chapter{Практическая часть}
+
+\section{Реализация}
+\begin{lstlisting}[caption={Теплоёмкость стержня}]
+def c(T):
+    return a2 + b2 * T ** m2 - c2 / T ** 2
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Коэффициенты теплопроводности материала стержня и теплоотдачи при обдуве}]
+def k(T):
+    return a1 * (b1 + c1 * T ** m1)
+
+
+def alpha(x):
+    d = (alphaN * l) / (alphaN - alpha0)
+    c = -alpha0 * d
+    return c / (x - d)
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Замены p и f}]
+def p(x):
+    return 2 * alpha(x) / R
+
+
+def f(x):
+    return 2 * alpha(x) * T0 / R
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Метод средних}]
+def FAddHalf(x, h, F):
+    return (F(x) + F(x + h)) / 2
+
+
+def FSubHalf(x, h, F):
+    return (F(x) + F(x - h)) / 2
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Параметры разностной схемы}]
+def A(T):
+    return FSubHalf(T, t, k) * t / h
+
+
+def D(T):
+    return FAddHalf(T, t, k) * t / h
+
+
+def B(x, T):
+    return A(T) + D(T) + c(T) * h + p(x) * h * t
+
+
+def F(x, T):
+    return f(x) * h * t + c(T) * T * h
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Краевые условия}]
+def bounds_left(prevT):
+    K0 = h / 8 * FAddHalf(
+            prevT[0], t, c) + h / 4 * c(prevT[0]) + \
+            FAddHalf(prevT[0], t, k) * t / h + \
+            t * h / 8 * p(h / 2) + t * h / 4 * p(0)
+
+    M0 = h / 8 * FAddHalf(
+            prevT[0], t, c) - FAddHalf(prevT[0], t, k) * \
+            t / h + t * h * p(h / 2) / 8
+
+    P0 = h / 8 * FAddHalf(
+            prevT[0], t, c) * (prevT[0] + prevT[1]) + \
+            h / 4 * c(prevT[0]) * prevT[0] + F0 * t + \
+            t * h / 8 * (3 * f(0) + f(h))
+
+    return K0, M0, P0
+
+
+def bounds_right(prevT):
+    KN = h / 8 * FSubHalf(
+            prevT[-1], t, c) + h / 4 * c(prevT[-1]) + \
+            FSubHalf(prevT[-1], t, k) * t / h + t * \
+            alphaN + t * h / 8 * p(l - h / 2) + t * h / 4 * p(l)
+
+    MN = h / 8 * FSubHalf(
+            prevT[-1], t, c) - FSubHalf(prevT[-1], t, k) * \
+            t / h + t * h * p(l - h / 2) / 8
+
+    PN = h / 8 * FSubHalf(
+            prevT[-1], t, c) * (prevT[-1] + prevT[-2]) + h / \
+            4 * c(prevT[-1]) * prevT[-1] + t * alphaN * T0 + \
+            t * h / 4 * (f(l) + f(l - h / 2))
+
+    return KN, MN, PN
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Метод прогонки}]
+def thomas(prevT):
+    K0, M0, P0 = bounds_left(prevT)
+    KN, MN, PN = bounds_right(prevT)
+
+    # Прямой ход
+    eps = [0, -M0 / K0]
+    eta = [0, P0 / K0]
+
+    x = h
+    n = 1
+    while (x + h < l):
+        eps.append(D(prevT[n]) / (B(x, prevT[n]) - A(prevT[n]) * eps[n]))
+        eta.append((
+            F(x, prevT[n]) + A(prevT[n]) * eta[n]) /
+            (B(x, prevT[n]) - A(prevT[n]) * eps[n]))
+
+        n += 1
+        x += h
+
+    # Обратный ход
+    y = [0] * (n + 1)
+    y[n] = (PN - MN * eta[n]) / (KN + MN * eps[n])
+
+    for i in range(n - 1, -1, -1):
+        y[i] = eps[i + 1] * y[i + 1] + eta[i + 1]
+
+    return y
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Метод простых итераций}]
+def termtest1(T, newT):
+    max = fabs((T[0] - newT[0]) / newT[0])
+
+    for i, j in zip(T, newT):
+        d = fabs(i - j) / j
+
+        if d > max:
+            max = d
+
+    return max < 1
+
+
+def termtest2(T, newT):
+    for i, j in zip(T, newT):
+        if fabs((i - j) / j) > 1e-2:
+            return True
+
+    return False
+
+
+def fixed_point_iteration():
+    n = int(l / h)
+    ti = 0
+
+    result = []
+    newT = [0] * (n + 1)
+    T = [T0] * (n + 1)
+
+    result.append(T)
+
+    while (True):
+        buf = T
+
+        while True:
+            newT = thomas(buf)
+            if termtest1(buf, newT):
+                break
+            buf = newT
+
+        result.append(newT)
+        ti += t
+
+        if (termtest2(T, newT) == False):
+            break
+
+        T = newT
+
+    return result, ti
+\end{lstlisting}
+
+\section{Результаты работы}
+
+\subsection{Представить разностный аналог краевого условия при $x = l$ и его краткий вывод интегро-интерполяционным методом}
+См. раздел~\ref{theory}.
+
+\subsection{График зависимости температуры от координаты при нескольких фиксированных значениях времени}
+На рисунке представлены графики зависимости температуры от координаты при нескольких фиксированных $t$. Последняя~--– синяя кривая соответствует установившемуся режиму, когда поле перестает меняться с точностью $1\text{e--}3$.
+\begin{figure}[H]
+    \caption{Зависимость температуры от координаты стержня}
+    \input{plots/plot01.tex}
+\end{figure}
+
+\sloppy\subsection{График зависимости температуры от времени при нескольких фиксированных значениях координаты}
+На рисунке представлены графики зависимости температуры от времени при фиксированных $x = 0, 0.2, 0.4, \ldots, 3.2$.
+\begin{figure}[H]
+    \caption{Зависимость температуры от времени}
+    \input{plots/plot02.tex}
+\end{figure}
+

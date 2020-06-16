@@ -1,0 +1,119 @@
+\chapter{Ответы на контрольные вопросы}
+
+\section{Приведите результаты тестирования программы (графики, общие соображения,качественный анализ). Учесть опыт выполнения лабораторной работы \textnumero3}
+
+Если после разогрева стержня положить поток равным 0, то будет происходить остывание, пока температура не выровняется по всей длине и не станет равной $T_0$.
+\begin{figure}[H]
+    \caption{Зависимость температуры от времени}
+    \input{plots/plot03.tex}
+\end{figure}
+
+Если для коэффициента теплопроводности стержня поменять зависимость от $T$ на зависимость от $x$ как в третьей лабораторной работе, а теплоемкость стержня задать равной нулю, то график $T(x, t)$ из этой лабораторной работы (рисунок~\ref{img:lab_04}) будет совпадать с графиком $T(x)$ из прошлой лабораторной работы (рисунок~\ref{img:lab_03}).
+\begin{figure}[H]
+    \caption{График из этой лабораторной работы}\label{img:lab_04}
+    \input{plots/plot_lab_04.tex}
+\end{figure}
+\begin{figure}[H]
+    \caption{График из лабораторной работы \textnumero3}\label{img:lab_03}
+    \input{plots/plot_lab_03.tex}
+\end{figure}
+
+\section{Выполните линеаризацию системы~\ref{eq:system_diff} по Ньютону, полагая для простоты, что все коэффициенты зависят только от одной переменной $y_n$. Приведите линеаризованный вариант уравнения и опишите алгоритм его решения.}
+
+\begin{equation*}
+        \LittleCap{A}_n \LittleCap{y}_{n-1} - \LittleCap{B}_n \LittleCap{y}_n + \LittleCap{D}_n \LittleCap{y}_{n+1} = -\LittleCap{F}_n
+    \end{equation*}
+
+    Все коэффициенты зависят только от одной переменной, тогда
+
+    \begin{multline*}
+        \bigg( \LittleCap{A}_n \LittleCap{y}_{n-1} - \LittleCap{B}_n \LittleCap{y}_n + \LittleCap{D}_n \LittleCap{y}_{n+1} + \LittleCap{F}_n \bigg) \bigg|_{s-1} + \LittleCap{A}_n^{s-1} \Delta \LittleCap{y}_{n-1}^{s} + \\
+        + \bigg( \frac{\partial \LittleCap{A}_n}{\partial \LittleCap{y}_n} \LittleCap{y}_{n-1} - \frac{\partial \LittleCap{B}_n}{\partial \LittleCap{y}_n} \LittleCap{y}_n - \LittleCap{B}_n + \frac{\partial \LittleCap{D}_n}{\partial \LittleCap{y}_n} \LittleCap{y}_{n+1} + \frac{\partial \LittleCap{F}_n}{\partial \LittleCap{y}_n} \bigg) \bigg|_{s-1} \Delta \LittleCap{y}_{n}^s + \\
+        + \LittleCap{D}_n^{s-1} \Delta \LittleCap{y}_{n+1}^s = 0
+    \end{multline*}
+
+    Каноничный вид
+
+    \begin{equation*}
+        A_n \Delta \LittleCap{y}_{n-1}^s - B_n \Delta\LittleCap{y}_n^s + D_n \Delta \LittleCap{y}_{n+1}^s = -F_n
+    \end{equation*}
+
+    Тогда получаем, что
+
+    \begin{equation*}
+        \begin{matrix*}[l]
+            A_n = \LittleCap{A}_n^{s-1} \\
+            B_n = \bigg( -\frac{\partial \LittleCap{A}_n}{\partial \LittleCap{y}_n} \LittleCap{y}_{n-1} + \frac{\partial \LittleCap{B}_n}{\partial \LittleCap{y}_n} \LittleCap{y}_n + \LittleCap{B}_n - \frac{\LittleCap{D}_n}{\partial \LittleCap{y}_n} \LittleCap{y}_{n+1} - \frac{\LittleCap{F}_n}{\partial \LittleCap{y}_n} \bigg) \bigg|_{s-1} \\
+            D_n = \LittleCap{D}_n^{s-1} \\
+            F_n = \bigg( \LittleCap{A}_n \LittleCap{y}_{n-1} - \LittleCap{B}_n \LittleCap{y}_n + \LittleCap{D}_n \LittleCap{y}_{n+1} + \LittleCap{F}_n \bigg) \bigg|_{s-1} \\
+        \end{matrix*}
+    \end{equation*}
+
+    Краевое условие для $y_0$
+
+    \begin{equation*}
+        \LittleCap{K}_0 \LittleCap{y}_0 + \LittleCap{M}_0 \LittleCap{y}_1 = \LittleCap{P}_0
+    \end{equation*}
+
+    Тогда
+
+    \begin{equation*}
+        \bigg( \LittleCap{K}_0 \LittleCap{y}_0 + \LittleCap{M}_0 \LittleCap{y}_1 - \LittleCap{P}_0 \bigg) \bigg|_{s-1} + \LittleCap{K}_0^{s-1} \Delta \LittleCap{y}_0^s + \LittleCap{M}_0^{s-1}\Delta \LittleCap{y}_1^s = 0
+    \end{equation*}
+
+    Каноничный вид
+
+    \begin{equation*}
+        K_0 \Delta \LittleCap{y}_0^s + M_0 \Delta \LittleCap{y}_1^s = P_0
+    \end{equation*}
+
+    Тогда получаем, что
+
+    \begin{equation*}
+        \begin{matrix*}[l]
+            K_0 = \LittleCap{K}_0^{s-1} \\
+            M_0 = \LittleCap{M}_0^{s-1} \\
+            P_0 = \bigg( - \LittleCap{K}_0 \LittleCap{y}_0 - \LittleCap{M}_0 \LittleCap{y}_1 + \LittleCap{P}_0 \bigg) \bigg|_{s-1} \\
+        \end{matrix*}
+    \end{equation*}
+
+    Краевое условие для $y_N$
+
+    \begin{equation*}
+        \LittleCap{K}_N \LittleCap{y}_N + \LittleCap{M}_{N-1} \LittleCap{y}_{N-1} = \LittleCap{P}_N
+    \end{equation*}
+
+    Тогда
+
+    \begin{equation*}
+        \bigg( \LittleCap{K}_N \LittleCap{y}_N + \LittleCap{M}_{N-1} \LittleCap{y}_{N-1} - \LittleCap{P}_N \bigg) \bigg|_{s-1} + \LittleCap{K}_N^{s-1} \Delta \LittleCap{y}_N^s+ \LittleCap{M}_{N-1}^s \Delta \LittleCap{y}_{N-1}^s = 0
+    \end{equation*}
+
+    Каноничный вид
+
+    \begin{equation*}
+        K_N \Delta \LittleCap{y}_N^s + M_{N-1} \Delta \LittleCap{y}_{N-1}^s = P_N
+    \end{equation*}
+
+    Тогда получается, что
+
+    \begin{equation*}
+        \begin{matrix*}[l]
+            K_N = \LittleCap{K}_N^{s-1} \\
+            M_{N-1} = \LittleCap{M}_{N-1}^s \\
+            P_N = \bigg( -\LittleCap{K}_N \LittleCap{y}_N - \LittleCap{M}_{N-1} \LittleCap{y}_{N-1} + \LittleCap{P}_N \bigg) \bigg|_{s-1}\\
+        \end{matrix*}
+    \end{equation*}
+
+    Система
+
+    \begin{equation*}
+        \begin{cases}
+            K_0 \Delta \LittleCap{y}_0^s + M_0 \Delta \LittleCap{y}_1^s = P_0 \\
+            A_n \Delta \LittleCap{y}_{n-1}^s - B_n \Delta\LittleCap{y}_n^s + D_n \Delta \LittleCap{y}_{n+1}^s = -F_n \\
+            K_N \Delta \LittleCap{y}_N^s + M_{N-1} \Delta \LittleCap{y}_{N-1}^s = P_N \\
+        \end{cases}
+    \end{equation*}
+
+    Решается методом прогонки, в результате находятся все $\Delta \LittleCap{y}_n^s$, после чего определяются значения искомой функции в узлах $\LittleCap{y}_n^s = \LittleCap{y}_n^{s-1} + \Delta \LittleCap{y}_n^s$. Итерационный процесс заканчивается при выполнении условия $\max \bigg| \frac{\Delta \LittleCap{y}_n^s}{\LittleCap{y}_n^s} \bigg| \le \varepsilon$.
+

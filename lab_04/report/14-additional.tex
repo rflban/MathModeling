@@ -1,0 +1,40 @@
+\chapter{Дополнения к работе}
+
+\section{Рис.~\ref{img:plot01} получите при $a_1 = 0.5$.  Приведите не более 3--4 кривых, последнюю кривую, установившийся режим, обязательно}
+Последняя, синяя, кривая соответствует установившемуся режиму, когда поле перестает меняться с точностью $1\text{e--}3$.
+\begin{figure}[H]
+    \caption{Зависимость температуры от координаты стержня}\label{img:plot01_new}
+    \input{plots/plot01_new.tex}
+\end{figure}
+
+\section{Линеаризуйте краевое условие в~\ref{question2}, полагая, что $K_0$, $M_0$ и  $P_0$  зависят от $y_0$  и $y_1$}
+    Краевое условие для $y_0$
+    \begin{equation*}
+        \LittleCap{K}_0 \LittleCap{y}_0 + \LittleCap{M}_0 \LittleCap{y}_1 = \LittleCap{P}_0
+    \end{equation*}
+где $K_0$, $M_0$, $P_0$ зависят от $y_0$ и $y_1$.
+
+    Тогда
+    \begin{flalign*}
+        &
+        0 = \bigg( \LittleCap{K}_0 \LittleCap{y}_0 + \LittleCap{M}_0 \LittleCap{y}_1 - \LittleCap{P}_0 \bigg) \bigg|_{s-1} + \\
+        &
+        + \bigg( \LittleCap{K}_0 + \frac{\partial \LittleCap{K}_0}{\partial \LittleCap{y}_0}\LittleCap{y}_0 + \frac{\partial \LittleCap{M}_0}{\partial \LittleCap{y}_0}\LittleCap{y}_1 - \frac{\partial \LittleCap{P}_0}{\partial \LittleCap{y}_0} \bigg)\bigg|_{s-1} \Delta \LittleCap{y}_0^s + \\
+        &
+        + \bigg( \frac{\partial \LittleCap{K}_0}{\partial \LittleCap{y}_1}\LittleCap{y}_0 + \frac{\partial \LittleCap{M}_0}{\partial \LittleCap{y}_1}\LittleCap{y}_1 + \LittleCap{M}_0 - \frac{\partial \LittleCap{P}_0}{\partial \LittleCap{y}_1} \bigg)\bigg|_{s-1} \Delta \LittleCap{y}_1^s \\
+    \end{flalign*}
+
+    Каноничный вид
+    \begin{equation*}
+        K_0 \Delta \LittleCap{y}_0^s + M_0 \Delta \LittleCap{y}_1^s = P_0
+    \end{equation*}
+
+    Тогда получаем, что
+    \begin{equation*}
+        \begin{matrix*}[l]
+            K_0 = \bigg( \LittleCap{K}_0 + \frac{\partial \LittleCap{K}_0}{\partial \LittleCap{y}_0}\LittleCap{y}_0 + \frac{\partial \LittleCap{M}_0}{\partial \LittleCap{y}_0}\LittleCap{y}_1 - \frac{\partial \LittleCap{P}_0}{\partial \LittleCap{y}_0} \bigg)\bigg|_{s-1} \\
+            M_0 = \bigg( \frac{\partial \LittleCap{K}_0}{\partial \LittleCap{y}_1}\LittleCap{y}_0 + \frac{\partial \LittleCap{M}_0}{\partial \LittleCap{y}_1}\LittleCap{y}_1 + \LittleCap{M}_0 - \frac{\partial \LittleCap{P}_0}{\partial \LittleCap{y}_1} \bigg)\bigg|_{s-1} \\
+            P_0 = \bigg( - \LittleCap{K}_0 \LittleCap{y}_0 - \LittleCap{M}_0 \LittleCap{y}_1 + \LittleCap{P}_0 \bigg) \bigg|_{s-1} \\
+        \end{matrix*}
+    \end{equation*}
+

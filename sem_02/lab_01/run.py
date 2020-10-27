@@ -2,13 +2,16 @@
 
 import tabulate
 import numpy
+import sys
 
 import myrnd
 
 
 def main():
-    n = 10000
     n = 10
+
+    if len(sys.argv) > 1:
+        n = int(sys.argv[1])
 
     slists = [ [], [], [] ]
     tlists = [ [], [], [] ]
@@ -45,7 +48,9 @@ def create_table(sequences: list) -> str:
             "1 разр." : cols[1],
             "2 разр." : cols[2],
             "3 разр." : cols[3],
-        }, headers="keys", tablefmt="presto"
+        },
+        headers="keys", tablefmt="presto",
+        numalign="right", floatfmt=".4f"
     )
 
     return table

@@ -29,7 +29,7 @@ def main():
 
 
 def draw_plots(x, y_cdf, y_pdf):
-    fig, axs = plt.subplots(2)
+    fig, axs = plt.subplots(2, figsize=(6,7))
 
     axs[0].plot(x, y_cdf)
     axs[1].plot(x, y_pdf)

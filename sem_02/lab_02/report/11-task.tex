@@ -1,0 +1,68 @@
+\chapter{Теоритическая часть}%
+
+\section{Равномерное распределение}
+
+Непрерывное равномерное распределение~--- распределение случайной вещественной величины, принимающей значения, принадлежащие некоторому промежутку конечной длины, характеризующееся тем, что плотность вероятности на этом промежутке почти всюду постоянна.
+
+Плотность распределения представлена в формуле \ref{eq:uniform_density}.
+
+\begin{equation}\label{eq:uniform_density}
+    f_X (x) =
+    \begin{cases}
+        \frac{1}{b-a}, x \in [a,b] \\
+        0, x \notin [a, b] \\
+    \end{cases}
+\end{equation}
+
+Функция распределения представлена в формуле \ref{eq:uniform_function}.
+
+\begin{equation}\label{eq:uniform_function}
+    F_X (x) =
+    \begin{cases}
+        0, x < a \\
+        \frac{x - a}{b - a}, a \le x < b \\
+        1, x \geq b \\
+    \end{cases}
+\end{equation}
+
+\section{Нормальное распределение}
+
+Нормальное распределение~--- распределение вероятностей, которое в одномерном случае задаётся функцией плотности вероятности, совпадающей с функцией Гаусса.
+
+Плотность распределения представлена в формуле \ref{eq:gauss_density}.
+
+\begin{equation}\label{eq:gauss_density}
+    f_X (x) = \frac{1}{\sigma \sqrt{2 \pi}} e^{-\frac{(x - \mu)^2}{2 \sigma^2}}
+\end{equation}
+
+Функция распределения представлена в формуле \ref{eq:gauss_function}.
+
+\begin{equation}\label{eq:gauss_function}
+    F (x) = \frac{1}{\sigma \sqrt{2\pi}} \int_{-\infty}^x e^{-\frac{(t- \mu)^2}{2 \sigma^2}} dt
+\end{equation}
+
+\chapter{Результаты работы}%
+
+\section{Равномерное распределение}
+\begin{figure}[H]
+    \centering
+    \input{plots/ud1.pgf}
+    \caption{Равномерное распределение при $a = 0$, $b = 15$}%
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \input{plots/ud2.pgf}
+    \caption{Равномерное распределение при $a = -10$, $b = 10$}%
+\end{figure}
+
+\section{Нормальное распределение}
+\begin{figure}[H]
+    \centering
+    \input{plots/nd1.pgf}
+    \caption{Нормальное распределение при $\mu = 0$, $\sigma = 1$}%
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \input{plots/nd2.pgf}
+    \caption{Нормальное распределение при $\mu = -5$, $\sigma = 5$}%
+\end{figure}

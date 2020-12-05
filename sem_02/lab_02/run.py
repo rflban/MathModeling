@@ -16,7 +16,7 @@ def main():
     y_cdf = [ud_cdf(a, b, _x) for _x in x]
     y_pdf = [ud_pdf(a, b, _x) for _x in x]
 
-    draw_plots(x, y_cdf, y_pdf, 'Равномерное распределение')
+    draw_plots(x, y_cdf, y_pdf)
 
     mean = float(input("Enter mean: "))
     stdd = float(input("Enter standard deviation: "))
@@ -25,13 +25,12 @@ def main():
     y_cdf = nd_cdf(x, mean, stdd)
     y_pdf = nd_pdf(x, mean, stdd)
 
-    draw_plots(x, y_cdf, y_pdf, 'Нормальное распределение')
+    draw_plots(x, y_cdf, y_pdf)
 
 
-def draw_plots(x, y_cdf, y_pdf, name):
-    fig, axs = plt.subplots(2, figsize=(6, 7))
+def draw_plots(x, y_cdf, y_pdf):
+    fig, axs = plt.subplots(2)
 
-    fig.suptitle(name)
     axs[0].plot(x, y_cdf)
     axs[1].plot(x, y_pdf)
 

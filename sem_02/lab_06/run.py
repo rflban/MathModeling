@@ -10,64 +10,45 @@ def main():
     transactions_qty = 500
 
     while iterations_qty := iterations_qty - 1:
-        model = Model(TransactionGenerator(3, 2, 0, transactions_qty))
+        model = Model(TransactionGenerator(4, 1, 0, transactions_qty))
 
-        t1 = Device("Терминал 1", 4, 3)
-        t2 = Device("Терминал 2", 4, 3)
+        cashier = Device("Касса", 3, 2, 5)
 
-        w1 = Device("Окно 1", 10, 5, 5)
-        w2 = Device("Окно 2", 15, 5, 5)
-        w3 = Device("Окно 3", 15, 10, 5)
-        w4 = Device("Окно 4", 20, 10, 5)
-        w5 = Device("Окно 5", 20, 5, 5)
+        cook1 = Device("Повар 1", 10, 2, None)
+        cook2 = Device("Повар 2", 11, 2, None)
+        cook3 = Device("Повар 3", 20, 4, None)
 
-        c = Device("Кабинет", 10, 5, None)
+        delivery = Device("Выдача", 1, 0.25, None)
 
-        r = Device("Отказ", 0, 0, -1)
-        s = Device("Успех", 0, 0, -1)
+        refusal = Device("Отказ", 0, 0, -1)
+        success = Device("Успех", 0, 0, -1)
 
-        t1.add_filled_transfer(1, t2)
-        t1.add_post_transfer(0.9 / 5, w1)
-        t1.add_post_transfer(0.9 / 5, w2)
-        t1.add_post_transfer(0.9 / 5, w3)
-        t1.add_post_transfer(0.9 / 5, w4)
-        t1.add_post_transfer(0.9 / 5, w5)
-        t1.add_post_transfer(0.1, r)
+        cashier.add_filled_transfer(1, refusal)
+        cashier.add_post_transfer(0.1, refusal)
+        cashier.add_post_transfer(0.4, delivery)
+        cashier.add_post_transfer(0.05, refusal)
+        cashier.add_post_transfer(0.45 * 0.6 / 2, cook1)
+        cashier.add_post_transfer(0.45 * 0.6 / 2, cook2)
+        cashier.add_post_transfer(0.45 * 0.4, cook3)
 
-        t2.add_filled_transfer(1, r)
-        t2.add_post_transfer(0.9 / 5, w1)
-        t2.add_post_transfer(0.9 / 5, w2)
-        t2.add_post_transfer(0.9 / 5, w3)
-        t2.add_post_transfer(0.9 / 5, w4)
-        t2.add_post_transfer(0.9 / 5, w5)
-        t2.add_post_transfer(0.1, r)
+        cook1.add_post_transfer(1, delivery)
+        cook2.add_post_transfer(1, delivery)
+        cook3.add_post_transfer(1, delivery)
 
-        w1.add_filled_transfer(1, r)
-        w2.add_filled_transfer(1, r)
-        w3.add_filled_transfer(1, r)
-        w4.add_filled_transfer(1, r)
-        w5.add_filled_transfer(1, r)
-
-        w1.add_post_transfer(1, c)
-        w2.add_post_transfer(1, c)
-
-        w3.add_post_transfer(1, s)
-        w4.add_post_transfer(1, s)
-        w5.add_post_transfer(1, s)
-
-        c.add_post_transfer(0.95, s)
-        c.add_post_transfer(0.05, r)
+        delivery.add_post_transfer(0.05, refusal)
+        delivery.add_post_transfer(0.95, success)
 
         model.pipeline += [
-            t1, t2,
-            w1, w2, w3, w4, w5,
-            c,
-            s, r
+            cashier,
+            cook1,
+            cook2,
+            cook3,
+            delivery,
         ]
 
         model.run()
 
-        refusals_counters.append(r.income_counters.copy())
+        refusals_counters.append(refusal.income_counters.copy())
 
     from tabulate import tabulate
 

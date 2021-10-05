@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>lab_03</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body>
+<div class="container">
+    <div class="mt-4 mb-3">
+        <div class="text-center">
+            <a href="/plus" class="btn btn-success col-md-2">Добавить</a>
+            <a href="/minus" class="btn btn-danger col-md-2 ml-2">Удалить</a>
+        </div>
+    </div>
+
+    <form method="POST">
+    <div class="row justify-content-center">
+    <div class="col-auto">
+    <table border="1">
+        <tr>
+            <td style="width: 30px;"></td>
+            {% for i in range(1, session["count"] + 1) %}
+                <td style="width: 30px;">{{ i }}</td>
+            {% endfor %}
+        </tr>
+        {% for i in range(1, session["count"] + 1) %}
+            <tr>
+                <td>{{ i }}</td>
+                {% for j in range(session["count"]) %}
+                    <td style="width: 30px;">
+                        {% if i - 1 < session["data"]|length and j < session["data"][i-1]|length and session["data"][i-1][j] != 0 %}
+                            <input style="width: 30px; border:0;" name="{{ session["count"] * (i - 1) + j }}" type="text" value="{{ session["data"][i-1][j] }}" />
+                        {% else %}
+                            <input style="width: 30px; border:0;" name="{{ session["count"] * (i - 1) + j }}" type="text" />
+                        {% endif %}
+                    </td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+    </div>
+    </div>
+    <div class="text-center">
+    <input type="Submit" value="Вычислить" class="btn btn-primary mt-2 mb-3" />
+    </div>
+    </form>
+    {% if session["result"]|length > 0 %}
+    <div class="row justify-content-center">
+    <div class="col-auto">
+    <table border="1">
+        <tr>
+            <td>&nbsp;&nbsp;Состояние&nbsp;&nbsp;&nbsp;&nbsp;</td>
+            <td>&nbsp;&nbsp;Среднее время пребывания&nbsp;&nbsp;&nbsp;&nbsp;</td>
+        </tr>
+        {% if session["result"]|length > 0 %}
+            {% for i in range(session["count"]) %}
+                <tr>
+                    <td>&nbsp;{{ i + 1 }}</td>
+                    <td>&nbsp;{{ session["result"][i] }}</td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+    </table>
+    </div>
+    </div>
+    {% endif %}
+</div>
+</body>
+<!--<style>-->
+<!--.buttoncontainer {-->
+    <!--display: flex;-->
+<!--}-->
+
+<!--.button {-->
+    <!--padding: 10px;-->
+    <!--margin: 10px;-->
+    <!--border: 1px solid black;-->
+    <!--display: block;-->
+    <!--text-decoration: none;-->
+    <!--color: black;-->
+    <!--background-color: white;-->
+<!--}-->
+
+<!--.button: hover {-->
+    <!--cursor: pointer;-->
+<!--}-->
+<!--</style>-->
+</html>
